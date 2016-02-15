@@ -1,0 +1,42 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                     __       __
+//    ____ ___  ____ _/ /______/ /_  ___  _____
+//   / __ `__ \/ __ `/ __/ ___/ __ \/ _ \/ ___/
+//  / / / / / / /_/ / /_/ /__/ / / /  __(__  )
+// /_/ /_/ /_/\__,_/\__/\___/_/ /_/\___/____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Polyfill for css level 4 :matches()
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Misc
+/// @author David Victor
+////
+/// Sass polyfill for :matches()
+/// https://developer.mozilla.org/en-US/docs/Web/CSS/:any
+/// @param [string] $string: selector as a string, must contain %m where there would be :matches()
+/// @param [list] $selectors: list of selectors that would be passed to :matches() function
+/// @return [list] $result: equivalent to :matches() as a list
+/// @note: multiple :matches() are currently unavailable
+/// @example scss - Match selectors
+///  #{matches(".main %m", section article aside nav)} {
+///  	color: #000000;
+///  }
+/// @throw WARN "No `%m` found in `#{$string}`."
+
+@function matches($string, $selectors) {
+	$index: str-index($string, "%m");
+	@if not $index {
+		@warn "smh, no `%m` found in `#{$string}` ~ matches";
+		@return false;
+	}
+
+	$result: ();
+	@each $selector in $selectors {
+		$fragment: if($index > 2, str-slice($string, 1, $index - 1), "") + $selector + str-slice($string, $index + 2);
+		$result: append($result, #{$fragment}, comma);
+	}
+
+	@return $result;
+}
+

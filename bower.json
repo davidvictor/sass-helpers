@@ -1,0 +1,22 @@
+{
+  "name": "roar-sass-helpers",
+  "version": "0.0.1",
+  "homepage": "https://github.com/davidvictor/sass-helpers",
+  "authors": [
+    "David Victor <david@techbro.biz>"
+  ],
+  "description": "My sass helpers",
+  "main": "dist/sass/sass-helpers.scss",
+  "keywords": [
+    "sass",
+    "yolo",
+    "roar"
+  ],
+  "license": "MIT",
+  "ignore": [],
+  "dependencies": {
+    "mathsass": "^0.9.5",
+    "sassy-lists": "git@github.com:at-import/SassyLists.git#master",
+    "sass-maps-plus": "git@github.com:lunelson/sass-maps-plus.git"
+  }
+}

@@ -1,0 +1,3695 @@
+@charset 'UTF-8';
+
+//                             __         __
+//    _________ ___________   / /_  ___  / /___  ___  __________
+//   / ___/ __ `/ ___/ ___/  / __ \/ _ \/ / __ \/ _ \/ ___/ ___/
+//  (__  ) /_/ (__  )__  )  / / / /  __/ / /_/ /  __/ /  (__  )
+// /____/\__,_/____/____/  /_/ /_/\___/_/ .___/\___/_/  /____/
+//                                     /_/
+//
+// v0.0.1
+
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// pow and sqrt required by ease function
+// adapted from https://github.com/at-import/Sassy-math/blob/master/sass/math.scss
+
+
+@function pow($base, $exponent) {
+	$value: $base;
+
+	@if $exponent > 1 {
+		@for $i from 2 through $exponent {
+			$value: $value * $base;
+		}
+	}
+
+	@if $exponent < 1 {
+		@for $i from 0 through -$exponent {
+			$value: $value / $base;
+		}
+	}
+
+	@return $value;
+}
+
+@function sqrt($number) {
+	$root: 4;
+
+	@for $i from 1 through 50 {
+		$root: $root - (pow($root, 2) - $number) / (2 * $root);
+	}
+
+	@return $root;
+}
+
+// SASS's elusive Infinity!
+@function Infinity() {
+	@return 1/0;
+}
+
+@function infinity() {
+	@return Infinity();
+}
+
+@function inf() {
+	@return Infinity();
+}
+
+@function ∞() {
+	@return Infinity();
+}
+
+// Borrowed from:
+
+// Ishango v0.1
+// Advanced Math in SASS
+// Nathan Crank
+// http://nathancrank.com/
+
+//////////////////////////////////////////////////
+// variable type-of tests
+//////////////////////////////////////////////////
+
+// check if value is an integer value
+@function is-int($number) {
+	@return type-of($number) == number and floor(abs($number)) == abs($number);
+}
+
+// check if value is a floating point
+@function is-float($value) {
+	@return type-of($value) == number and floor(abs($value)) != abs($value);
+}
+
+// check if value is SASS's damned Infinity
+@function is-inf($value) {
+	@return type-of($value) == number and $value == inf();
+}
+
+@function remove-unit($value) {
+	@if type-of($value) != number {
+		@debug "You can only remove units from variables that are numbers. Returning value unchanged.";
+		@return $value;
+	}
+	@if unitless($value) == true {
+		@return $value
+	}
+	$units: unit($value);
+	@if $units == "%" {
+		@return $value / 1%;
+	} @else if $units == "em" {
+		@return $value / 1em;
+	} @else if $units == "rem" {
+		@return $value / 1rem;
+	} @else if $units == "px" {
+		@return $value / 1px;
+	} @else if $units == "in" {
+		@return $value / 1in;
+	} @else if $units == "cm" {
+		@return $value / 1cm;
+	} @else if $units == "mm" {
+		@return $value / 1mm;
+	} @else if $units == "ex" {
+		@return $value / 1ex;
+	} @else if $units == "pt" {
+		@return $value / 1pt;
+	} @else if $units == "pc" {
+		@return $value / 1pc;
+	}
+}
+
+//////////////////////////////////////////////////
+// constants
+//////////////////////////////////////////////////
+
+@function pi() {
+	@return 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+}
+
+@function π() {
+	@return pi();
+}
+
+@function tau() {
+	@return 2 * pi();
+}
+
+@function τ() {
+	@return tau();
+}
+
+@function golden-ratio() {
+	@return 1.6180339887498948482045868343656381177203091798057628621354486227052604628189024497072072041893911374;
+}
+
+@function φ() {
+	@return golden-ratio();
+}
+
+// Euler's number
+@function e() {
+	@return 2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274;
+}
+
+@function life-the-universe-and-everything() {
+	@return 42;
+}
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// Borrowed from the amazing Marc Mintel
+
+///  Check whether `$list` contains `$value`.
+///  @param  {List} $list  - List of values.
+///  @param  {*}    $value - Value to check in the list.
+///  @return {Bool}
+///
+@function contains($list, $value) {
+	@return not not index($list, $value);
+}
+
+///  Check whether `$list` contains `$value`.
+///  @param  {List} $list  - List of values.
+///  @param  {*}    $value - Value to check in the list.
+///  @return {Bool}
+///
+@function is($list, $value) {
+	@return not not index($list, $value);
+}
+
+/// Check whether `$value` is a valid length.
+/// @param {*} $value - Value to validate.
+/// @return {Bool}
+///
+@function is-length($value) {
+	@return contains(0 "auto" "initial" "inherit", $value)
+          or type-of($value) == "number" and not unitless($value)
+          or str-slice($value + "", 1, 4) == "calc";
+}
+
+///
+/// Check whether `$value` is a valid size.
+/// @param {*} $value - Value to validate.
+/// @return {Bool}
+/// @requires {function} is-length
+///
+@function is-size($value) {
+	@return is-length($value)
+          or contains("fill" "fit-content" "min-content" "max-content", $value);
+}
+
+/// VALIDATE UNITS
+
+$UNITS: 'px' 'cm' 'mm' '%' 'ch' 'pica' 'in' 'em' 'rem' 'pt' 'pc' 'ex' 'vw' 'vh' 'vmin' 'vmax';
+///
+/// Tests whether `$var` is bool.
+/// @access public
+/// @since 1.0.0
+/// @param {*} $var  - check for bool type
+/// @return {bool}
+/// @example
+///  is_bool(true)    //returns true
+///  is_bool(false)   //returns true
+///  is_bool(test)    //returns false
+///  is_bool(1)       //returns false
+///  is_bool(null)    //returns false
+///
+@function is_bool($var) {
+	@if type-of($var) == bool {
+		@return true;
+	} @else {
+		@return false;
+	}
+}
+
+//
+// Tests whether `$var` is color.
+// @access public
+// @since 1.0.0
+// @param {*} $var  - check for color type
+// @return {bool}
+// @example
+//  is_color(#333)   //returns true
+//  is_color(black)  //returns true
+//  is_color(test)   //returns false
+///
+@function is_color($var) {
+	@if type-of($var) == color {
+		@return true;
+	} @else {
+		@return false;
+	}
+}
+
+//
+// Tests whether `$var` is empty.
+// @access public
+// @since 1.0.0
+// @param {*} $var  - check for emptiness
+// @return {bool}
+// @example
+//  is_empty('')     //returns true
+//  is_empty(())     //returns true
+//  is_empty('test') //returns false
+///
+@function is_empty($var) {
+	@if type-of($var) == string {
+		@return str-length($var) == 0;
+	}
+	@if type-of($var) == number {
+		@return $var != 0;
+	}
+	@if type-of($var) == list {
+		@return length($var) == 0;
+	}
+	@if $var == false {
+		@return true;
+	}
+	@if $var == null {
+		@return true;
+	}
+}
+
+//
+/// Tests whether `$var` is list.
+/// @access public
+/// @since 1.0.0
+/// @param {*} $var  - check for list type
+/// @return {bool}
+/// @example
+///  is_list(a b)          //returns true
+///  is_list(1 2 3)        //returns true
+///  is_list((test, test)) //returns true
+///  is_list(test)         //returns false
+///  is_list(1)            //returns false
+///
+@function is_list($var) {
+	@if type-of($var) == list {
+		@return true;
+	}
+	@else {
+		@return false;
+	}
+}
+
+//
+/// Tests whether `$var` is measure.
+/// @access public
+/// @since 1.0.0
+/// @param {*} $var  - check for measure type
+/// @return {bool}
+/// @example
+///  is_measure(1px)   //returns true
+///  is_measure(5em)   //returns true
+///  is_measure(5)     //returns false
+///  is_measure(test)  //returns false
+///  is_measure(em)    //returns false
+///
+@function is_measure($var) {
+	@if type-of($var) == number {
+		@if unitless($var) {
+			@return false;
+		}
+	}
+	@else {
+		@return false;
+	}
+	@if not index($UNITS, unit($var)) {
+		@return false;
+	}
+	@else {
+		@return true;
+	}
+}
+
+//
+/// Tests whether `$var` is bool.
+/// @access public
+/// @since 1.0.0
+/// @param {*} $var  - check for bool type
+/// @return {bool}
+/// @example
+///  is_null(null)  //returns true
+///  is_null(false) //returns false
+///  is_null(0) //returns false
+///
+@function is_null($var) {
+	@if $var == null {
+		@return true;
+	} @else {
+		@return false;
+	}
+}
+
+//
+/// Tests whether `$var` is numeric.
+/// @access public
+/// @since 1.0.0
+/// @param {*} $var  - check for numeric type
+/// @return {bool}
+/// @example
+///  is_numeric(1)   //returns true
+///  is_numeric('1') //returns false
+///  is_numeric(1em) //returns false
+///
+@function is_numeric($var) {
+	@if type-of($var) == number {
+		@return unitless($var);
+	}
+	@else {
+		@return false;
+	}
+}
+
+//
+/// Tests whether `$var` is string.
+/// @access public
+/// @since 1.0.0
+/// @param {*} $var  - check for string type
+/// @return {bool}
+/// @example
+///  is_string(test) //returns true
+///  is_string(1)    //returns false
+///
+@function is_string($var) {
+	@if type-of($var) != string {
+		@return false;
+	} @else {
+		@return true;
+	}
+}
+
+//
+/// Tests whether `$var` is unit.
+/// @access public
+/// @since 1.0.0
+/// @requires invoke
+/// @param {*} $value  - string or list to test
+/// @return {bool}
+/// @example
+///  is_empty('') //returns true
+///  is_empty(()) //returns true
+///  is_empty('test') //returns false
+///
+@function is_unit($var) {
+	@if type-of($var) == string {
+		@return if(index($UNITS, $var), true, false);
+	} @else {
+		@return false;
+	}
+}
+
+//
+/// validates required against various tests
+/// @requires is_bool
+/// @requires is_color
+/// @requires is_empty
+/// @requires is_list
+/// @requires is_measure
+/// @requires is_null
+/// @requires is_numeric
+/// @requires is_string
+/// @requires is_unit
+/// @param {value}           $var         - a variable to be tested
+/// @param {list|string|any} $validations - the validations to test (e.g. measure, string, number, unit). "any" means it can be any type so there won't be any kind of test.
+/// @return {bool}
+/// @throws '$var is not a known validation type.'
+/// @example
+///  validate(1em, measure)     //returns 1em
+///  validate(em, unit string)  //returns em
+///  validate(1, number string) //returns 1
+///  validate(1, number)        //returns 1
+///  validate(1, string)        //returns false
+/// @since 1.0.0
+///
+@function validate($var, $validations) {
+	//set a list of testable validation types
+	$allTypes: measure, list, bool, string, color, number, unit;
+
+	//do not test anything if type equals "any"
+	@if $validations == any {
+		@return true;
+	}
+
+	//if there is more than one validation test
+	@if length($validations) > 1 {
+		//break function if validation is not a known data type
+		@each $validation in $validations {
+			@if not index($allTypes, $validation) {
+				@warn '#{$validation} is not a known validation type.';
+				@return false;
+			}
+		}
+	}
+
+	//collect validation errors
+	$errors: ();
+	//check each validation and set 1 for each failure
+	@each $validation in $validations {
+		@if $validation == measure {
+			@if not is_measure($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == list {
+			@if not is_list($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == color {
+			@if not is_color($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == bool {
+			@if not is_bool($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == null {
+			@if not is_null($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == string {
+			@if not is_string($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == number {
+			@if not is_numeric($var) {
+				$errors: append($errors, 1);
+			}
+		}
+
+		@else if $validation == unit {
+			@if not is_unit($var) {
+				$errors: append($errors, 1);
+			}
+		}
+			//as we checked earlier $validation must be one of our data types
+			//so this condition my never be encountered but just in case..return false
+		@else {
+			@return false;
+		}
+	}
+
+	//throw an error if there are as many validation errors as validation tests because all checked types failed
+	@if length($errors) >= length($validations) {
+		@return false;
+	}
+		//at least one of tested types must be valid
+	@else {
+		@return true;
+	}
+}
+
+
+
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | UNIT CONVERSION
+// +==============================================================================
+//
+
+
+
+
+// ------------------------------------------------------------------------------
+// !-- STRIP UNIT
+// ------------------------------------------------------------------------------
+// It strips the unit of measure and returns it
+@function strip-unit($num) {
+	@return $num / ($num * 0 + 1);
+}
+
+// ------------------------------------------------------------------------------
+// !-- CONVERT TO REM
+// ------------------------------------------------------------------------------
+@function convert-to-rem($value, $base-value: $rem-base) {
+	@if $value == auto {
+		$value: auto;
+	} @else {
+		$value: strip-unit($value) / strip-unit($base-value) * 1rem;
+		@if $value == 0rem {
+			$value: 0;
+		}
+	}
+	@return $value;
+}
+
+// ------------------------------------------------------------------------------
+// !-- CONVERT TO PX
+// ------------------------------------------------------------------------------
+@function convert-to-px($value, $base-value: $rem-base) {
+	@if $value == auto {
+		$value: auto;
+	} @else {
+		$value: strip-unit($value) * strip-unit($base-value) * 1px;
+		@if $value == 0px {
+			$value: 0;
+		}
+	}
+	@return $value;
+}
+
+// ------------------------------------------------------------------------------
+// !-- REM CALC
+// ------------------------------------------------------------------------------
+// Allows to optionally calculate on a different base value to counter compounding effect of rem's.
+// Call with 1, 2, 3 or 4 parameters, 'px' is not required but supported:
+//   rem-calc(10 20 30px 40);
+//
+// Space delimited, if you want to delimit using comma's, wrap it in another pair of brackets
+//   rem-calc((10, 20, 30, 40px));
+//
+// Optionally call with a different base (eg: 8px) to calculate rem.
+//   rem-calc(16px 32px 48px, 8px);
+//
+// If you require to comma separate your list
+//   rem-calc((16px, 32px, 48), 8px);
+
+@function rem-calc($values, $base-value: $rem-base) {
+	$max: length($values);
+	@if $max == 1 {
+		@return convert-to-rem(nth($values, 1));
+	}
+	$rem-values: ();
+	@for $i from 1 through $max {
+		$rem-values: append($rem-values, convert-to-rem(nth($values, $i)));
+	}
+	@return $rem-values;
+}
+
+// ------------------------------------------------------------------------------
+// !-- REM STAY
+// ------------------------------------------------------------------------------
+@function rem-set($values, $base-value: $rem-base) {
+	$max: length($values);
+	@if $max == 1 {
+		@return strip-unit(nth($values, 1)) * 1rem;
+	}
+	$rem-values: ();
+	@for $i from 1 through $max {
+		$rem-values: append($rem-values, strip-unit(nth($values, $i)) * 1rem);
+	}
+	@return $rem-values;
+}
+
+// ------------------------------------------------------------------------------
+// !-- PIXEL CALC
+// ------------------------------------------------------------------------------
+@function px-calc($values) {
+	$max: length($values);
+	@if $max == 1 {
+		@return convert-to-px(nth($values, 1));
+	}
+	$px-values: ();
+	@for $i from 1 through $max {
+		$px-values: append($px-values, convert-to-px(nth($values, 1)));
+	}
+	@return $px-values;
+}
+
+// ------------------------------------------------------------------------------
+// !-- PIXEL STAY
+// ------------------------------------------------------------------------------
+@function px-set($values) {
+	$max: length($values);
+	@if $max == 1 {
+		@return strip-unit(nth($values, 1)) * 1px;
+	}
+	$px-values: ();
+	@for $i from 1 through $max {
+		$px-values: append($px-values, strip-unit(nth($values, $i)) * 1px);
+	}
+	@return $px-values;
+}
+
+// ------------------------------------------------------------------------------
+// !-- PERCENTAGE
+// ------------------------------------------------------------------------------
+@function percent-calc($numerator, $denominator) {
+	@return percentage($numerator / $denominator);
+}
+
+
+/// Convert to VW units
+//  +==============================================================================-
+@function get-vw($target) {
+	$vw-context: (1000*.01) * 1px;
+	@return ($target/$vw-context) * 1vw;
+}
+
+
+
+// Functions:
+// ----------------------------------------------------------
+//
+//  NUMBER:
+//
+//  isNaN($value)  - returns true or false if type-of($value)==number
+//
+//  number($value) - returns a unitless number.
+//
+//  int($value)    - returns a unitless integer.
+//
+//  uint($value)   - returns a unitless unsigned integer.
+//
+//  UNITS:
+//
+//  px($value)     - converts a number or unit to px.
+//
+//  em($args...)   - converts a number or unit to em.
+//
+//                    To adjust for em compounds you can add
+//                    additional arguments to calculate the
+//                    visual em size. em(visual-size,....)
+//
+//                    Example:  em(2, 2em, 2em) => 0.5em
+//
+//  rem($value)    - converts a number or unit to rem.
+//
+//  pt($value)     - converts a number or unit to pt.
+//
+//  pc($value)     - converts a number or unit to pc.
+//
+//  in($value)     - converts a number or unit to in.
+//
+//  cm($value)     - converts a number or unit to cm.
+//
+//
+// PERCENTAGE:
+//
+//  pct($value,$base:100)   - similar to percentage, but takes a base
+//                            value (100%) to be used for calculating
+//                            the percent value returned
+//
+//                            Example:  pct(1,100)     => 1%
+//                                      pct(1,1)       => 100%
+//                                      pct(50,250)    => 20%
+//                                      pct(10px,16px) => 62.5%
+//                                      pct(1em,16px)  => 100%
+//
+// ANGLE:
+//
+//  deg($value)     - converts a number or angle unit to deg.
+//
+//  grad($value)    - converts a number or angle unit to grad.
+//
+//  turn($value)    - converts a number or angle unit to turn.
+//
+//  rad($value)     - converts a number or angle unit to rad.
+//
+//
+// ==========================================================
+// Unit Conversion Table
+// http://www.translatorscafe.com/cafe/units-converter/typography/
+//      1px = 0.0625pc;
+//      1px = 0.75pt;
+//      1px = 0.010416667in;
+//      1px = 0.264583333mm;
+//      1px = 0.026458333cm;
+//
+// Angles
+// http://www.w3.org/TR/css3-values/#angles
+//      Full circle = 360deg = 400grad =  1turn = 2πrad
+//      1deg =  1.111111111grad  (400/360)
+//      1deg =  0.002777778turn  (1/360)
+//      1deg =  0.017453293rad   (180/π)
+//
+// ==========================================================
+
+
+// Base font size in percent (http://pxtoem.com/)
+// - used when calculating em and rem
+$base-font-scale: 62.5% !default;
+
+// Number
+@function isNaN($val) {
+	@return type-of($val)!=number;
+}
+
+@function number($val) {
+	@return if(isNaN($val), null, if(unitless($val), $val, $val/($val*0+1)));
+}
+
+@function int($val) {
+	@if (isNaN($val)) {
+		@return null;
+	}
+	$val: number($val);
+	@return if($val<0, ceil($val), floor($val));
+}
+
+@function uint($val) {
+	@return if(isNaN($val), null, abs(int($val)));
+}
+
+// Aliases
+@function num($val) {
+	@return number($val);
+}
+
+@function parseFloat($val) {
+	@return number($val);
+}
+
+// Really a math thing
+@function parseInt($val) {
+	@return int($val);
+}
+
+@function unit-handler($val,$unit){
+	@if($val==null or type-of($val)!=number){
+		@return null;
+	}
+	$u:unit($val);
+	@if($u==rem or $u==em){
+		@return 0px + number($val) / 0.0625 * 100% / $base-font-scale;
+	}
+	@return $unit + $val;
+}
+
+// Absolute lengths
+@function px($val) {
+	@return unit-handler($val, 0px);
+}
+
+@function pt($val) {
+	@return unit-handler($val, 0pt);
+}
+
+@function pc($val) {
+	@return unit-handler($val, 0pc);
+}
+
+@function in($val) {
+	@return unit-handler($val, 0in);
+}
+
+@function mm($val) {
+	@return unit-handler($val, 0mm);
+}
+
+@function cm($val) {
+	@return unit-handler($val, 0cm);
+}
+
+// Relative lengths using px as base
+@function rem($val) {
+	@return 0rem + if(unitless($val), $val, number(px($val)) * 0.0625 * 100% / $base-font-scale);
+}
+
+@function em($args...) {
+	$val: nth($args, 1);
+	$em: 0em  + if(unitless($val), $val, number(px($val)) * 0.0625 * 100% / $base-font-scale);
+	@if (length($args)>1) {
+		@for $i from 2 through length($args) {
+			$em: $em / number(em(nth($args,$i)))
+		}
+	}
+	@return $em;
+}
+
+@function pct($val, $base: 1) {
+	@return if(isNaN($val), null, percentage(number(px($val))/number(px($base))));
+}
+
+// Angle conversion using deg as base
+@function deg($val) {
+	@if (isNaN($val)) {
+		@return null;
+	}
+	$u: unit($val);
+	$u: if($u==deg, 1,
+		if($u==grad, 1.111111111,
+			if($u==turn, 0.002777778,
+				if($u==rad, 0.017453293,
+					1))));
+	@return number($val) / $u * 1deg;
+}
+
+@function grad($val) {
+	@return if(isNaN($val), null, if(unitless($val), $val * 1grad, number(deg($val)) * 1.11111111grad));
+}
+
+@function turn($val) {
+	@return if(isNaN($val), null, if(unitless($val), $val * 1turn, number(deg($val)) * 0.002777778turn));
+}
+
+@function rad($val) {
+	@return if(isNaN($val), null, if(unitless($val), $val * 1rad, number(deg($val)) * 0.017453293rad));
+}
+
+@function convert($unit, $args...) {
+	@if ($unit==number) {
+		@return number($args...);
+	}
+	@if ($unit==num) {
+		@return num($args...);
+	}
+	@if ($unit==int) {
+		@return int($args...);
+	}
+	@if ($unit==uint) {
+		@return uint($args...);
+	}
+	@if ($unit==px) {
+		@return px($args...);
+	}
+	@if ($unit==pt) {
+		@return pt($args...);
+	}
+	@if ($unit==pc) {
+		@return pc($args...);
+	}
+	@if ($unit==in) {
+		@return in($args...);
+	}
+	@if ($unit==mm) {
+		@return mm($args...);
+	}
+	@if ($unit==cm) {
+		@return cm($args...);
+	}
+	@if ($unit==em) {
+		@return em($args...);
+	}
+	@if ($unit==rem) {
+		@return rem($args...);
+	}
+	@if ($unit==pct) {
+		@return pct($args...);
+	}
+	@if ($unit==deg) {
+		@return int($args...);
+	}
+	@if ($unit==grad) {
+		@return grad($args...);
+	}
+	@if ($unit==turn) {
+		@return turn($args...);
+	}
+	@if ($unit==rad) {
+		@return rad($args...);
+	}
+}
+
+
+@function unit-add($number, $unit) {
+	@if $unit == 'px' {
+		@return $number/// 1px;
+	}
+	@else if $unit == 'cm' {
+		@return $number/// 1cm;
+	}
+	@else if $unit == 'mm' {
+		@return $number/// 1mm;
+	}
+	@else if $unit == '%' {
+		@return $number//1%;
+	}
+	@else if $unit == 'ch' {
+		@return $number/// 1ch;
+	}
+	@else if $unit == 'pica' {
+		@return $number/// 1pica;
+	}
+	@else if $unit == 'in' {
+		@return $number/// 1in;
+	}
+	@else if $unit == 'em' {
+		@return $number/// 1em;
+	}
+	@else if $unit == 'rem' {
+		@return $number/// 1rem;
+	}
+	@else if $unit == 'pt' {
+		@return $number/// 1pt;
+	}
+	@else if $unit == 'pc' {
+		@return $number/// 1pc;
+	}
+	@else if $unit == 'ex' {
+		@return $number/// 1ex;
+	}
+	@else if $unit == 'vw' {
+		@return $number/// 1vw;
+	}
+	@else if $unit == 'vh' {
+		@return $number/// 1vh;
+	}
+	@else if $unit == 'vmin' {
+		@return $number/// 1vmin;
+	}
+	@else if $unit == 'vmax' {
+		@return $number/// 1vmax;
+	} @else {
+		@return false;
+	}
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                    _            
+//   ___  ____ ______(_)___  ____ _
+//  / _ \/ __ `/ ___/ / __ \/ __ `/
+// /  __/ /_/ (__  ) / / / / /_/ / 
+// \___/\__,_/____/_/_/ /_/\__, /  
+//                        /____/   
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Easing curve functions
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Functions
+/// @author David Victor
+////
+/// Returns values based on an easing curve and # of iterations
+/// adapted from http://www.kirupa.com/forum/showthread.php?378287-Robert-Penner-s-Easing-Equations-in-Pure-JS-%28no-jQuery%29
+//// @param {Number} $iteration -> $iteration
+//// @param {Number} $start-value -> $start-value
+//// @param {Number} $change -> $change,
+//// @param {Number} $total-iterations -> $total-iterations
+
+@function ease($iteration, $start-value, $change, $total-iterations, $ease) {
+	$progress: $iteration / $total-iterations;
+
+	// value increases evenly
+	@if $ease == linear {
+		@return $change * $progress + $start-value;
+	}
+
+	// value increases on a curve, accelerating
+	@if $ease == in-quad {
+		@return $change * $progress * $progress + $start-value;
+	}
+
+	// value increases on a curve, decelerating
+	@if $ease == out-quad {
+		@return -$change * $progress * ($progress - 2) + $start-value;
+	}
+
+	@if $ease == in-out-quad {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * $iteration * $iteration + $start-value;
+		}
+		@return -$change / 2 * (($iteration - 1) * ($iteration - 2) - 1) + $start-value;
+	}
+
+	// value accelerates sharply
+	@if $ease == in-cubic {
+		@return $change * pow($progress, 3) + $start-value;
+	}
+
+	// value decelerates sharply
+	@if $ease == out-cubic {
+		@return $change * (pow($progress - 1, 3) + 1) + $start-value;
+	}
+
+	@if $ease == in-out-cubic {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow($iteration, 3) + $start-value;
+		}
+		@return $change / 2 * (pow($iteration - 2, 3) + 2) + $start-value;
+	}
+
+	// value accelerates more sharply
+	@if $ease == in-quart {
+		@return $change * pow($progress, 4) + $start-value;
+	}
+
+	// value decelerates more sharply
+	@if $ease == out-quart {
+		@return -$change * (pow($progress - 1, 4) - 1) + $start-value;
+	}
+
+	@if $ease == in-out-quart {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow($iteration, 4) + $start-value;
+		}
+		@return -$change / 2 * (pow($iteration - 2, 4) - 2) + $start-value;
+	}
+
+	// value accelerates very sharply
+	@if $ease == in-quint {
+		@return $change * pow($progress, 5) + $start-value;
+	}
+
+	// value decelerates very sharply
+	@if $ease == out-quint {
+		@return $change * (pow($progress - 1, 5) + 1) + $start-value;
+	}
+
+	@if $ease == in-out-quint {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow($iteration, 5) + $start-value;
+		}
+		@return $change / 2 * (pow($iteration - 2, 5) + 2) + $start-value;
+	}
+
+	@if $ease == in-sine {
+		@return $change * (1 - cos($iteration / $total-iterations * (pi() / 2))) + $start-value;
+	}
+
+	@if $ease == out-sine {
+		@return $change * sin($iteration / $total-iterations *(pi() / 2)) + $start-value;
+	}
+
+	@if $ease == in-out-sine {
+		@return $change / 2 * (1 - cos(pi() * $iteration / $total-iterations)) + $start-value;
+	}
+
+	@if $ease == in-expo {
+		@return $change * pow(2, 10 * ($iteration / $total-iterations - 1)) + $start-value;
+	}
+
+	@if $ease == out-expo {
+		@return $change * (- pow(2, -10 * $iteration / $total-iterations) + 1) + $start-value;
+	}
+
+	@if $ease == in-out-expo {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow(2, 10 * ($iteration - 1)) + $start-value;
+		}
+		@return $change / 2 * (- pow(2, -10 * ($iteration - 1)) + 2) + $start-value;
+	}
+
+	@if $ease == in-circ {
+		@return $change * (1 - sqrt(1 - ($change) * $iteration)) + $start-value;
+	}
+
+	@if $ease == out-circ {
+		@return $change * sqrt(1 - ($iteration = $iteration / $total-iterations - 1) * $iteration) + $start-value;
+	}
+
+	@if $ease ==in-out-circ {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * (1 - sqrt(1 - $iteration * $iteration)) + $start-value;
+		}
+		@return $change / 2 * (sqrt(1 - ($iteration - 2) * $iteration) + 1) + $start-value;
+	}
+
+}
+
+// +==============================================================================
+// | EASING MAP
+// +==============================================================================
+$ease: (
+	in-quad: cubic-bezier(0.550, 0.085, 0.680, 0.530),
+	in-cubic: cubic-bezier(0.550, 0.055, 0.675, 0.190),
+	in-quart: cubic-bezier(0.895, 0.030, 0.685, 0.220),
+	in-quint: cubic-bezier(0.755, 0.050, 0.855, 0.060),
+	in-sine: cubic-bezier(0.470, 0.000, 0.745, 0.715),
+	in-expo: cubic-bezier(0.950, 0.050, 0.795, 0.035),
+	in-circ: cubic-bezier(0.600, 0.040, 0.980, 0.335),
+	in-back: cubic-bezier(0.600, -0.280, 0.735, 0.045),
+	out-quad: cubic-bezier(0.250, 0.460, 0.450, 0.940),
+	out-cubic: cubic-bezier(0.215, 0.610, 0.355, 1.000),
+	out-quart: cubic-bezier(0.165, 0.840, 0.440, 1.000),
+	out-quint: cubic-bezier(0.230, 1.000, 0.320, 1.000),
+	out-sine: cubic-bezier(0.390, 0.575, 0.565, 1.000),
+	out-expo: cubic-bezier(0.190, 1.000, 0.220, 1.000),
+	out-circ: cubic-bezier(0.075, 0.820, 0.165, 1.000),
+	out-back: cubic-bezier(0.175, 0.885, 0.320, 1.275),
+	in-out-quad: cubic-bezier(0.455, 0.030, 0.515, 0.955),
+	in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1.000),
+	in-out-quart: cubic-bezier(0.770, 0.000, 0.175, 1.000),
+	in-out-quint: cubic-bezier(0.860, 0.000, 0.070, 1.000),
+	in-out-sine: cubic-bezier(0.445, 0.050, 0.550, 0.950),
+	in-out-expo: cubic-bezier(1.000, 0.000, 0.000, 1.000),
+	in-out-circ: cubic-bezier(0.785, 0.135, 0.150, 0.860),
+	in-out-back: cubic-bezier(0.680, -0.550, 0.265, 1.550)
+);
+
+@function e($key) {
+	@if map-has-key($ease, $key) {
+		@return map-get($ease, $key);
+	}
+	@warn "smh, '#{$key}' definitely not in $ease ~ via e (easing shortcut function)";
+	@return null;
+}
+
+
+@function _easeing($time, $g) {
+	@if $time < 50 {
+		@return 0.5 * pow(2 * $time/100, $g);
+	} @else {
+		@return 1 - (0.5 * pow(2 * (1 - $time/100), $g));
+	}
+}
+
+@mixin easingGenerator($g) {
+	@for $i from 0 through 100 {
+		// calculate
+		$percent: 0% + $i;
+		$left: 0% + 100 * ease($i, $g);
+		// set position
+		#{$percent} { left: $left; }
+	}
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//         _           __
+//  ____  (_)___  ____/ /__  _  __
+// /_  / / / __ \/ __  / _ \| |/_/
+//  / /_/ / / / / /_/ /  __/>  <
+// /___/_/_/ /_/\__,_/\___/_/|_|
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Managing complex stacking order
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Functions
+/// @author David Victor
+////
+
+$z: (
+			'page':(
+				'header':120,
+				'base':100,
+				'footer':110
+			)
+		) !default;
+
+/// @param {ArgList} $layers - list of layers, getting deeper
+/// @throw
+/// @example scss - Get nested z-index
+///  z-index: z("modal", "base");
+
+@function z($layers...) {
+	@if not list-get($z, $layers...) {
+		@warn "No layer found for `#{inspect($layers...)}` in $z map. Property omitted.";
+	}
+	@return list-get($z, $layers...);
+}
+
+/// @param {String} $l - Layer
+/// @param {String} $e - Element
+
+@mixin z($l,$e,$p){
+	z-index: index($l,$e) + $p;
+};
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                     __       __
+//    ____ ___  ____ _/ /______/ /_  ___  _____
+//   / __ `__ \/ __ `/ __/ ___/ __ \/ _ \/ ___/
+//  / / / / / / /_/ / /_/ /__/ / / /  __(__  )
+// /_/ /_/ /_/\__,_/\__/\___/_/ /_/\___/____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Polyfill for css level 4 :matches()
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Misc
+/// @author David Victor
+////
+/// Sass polyfill for :matches()
+/// https://developer.mozilla.org/en-US/docs/Web/CSS/:any
+/// @param [string] $string: selector as a string, must contain %m where there would be :matches()
+/// @param [list] $selectors: list of selectors that would be passed to :matches() function
+/// @return [list] $result: equivalent to :matches() as a list
+/// @note: multiple :matches() are currently unavailable
+/// @example scss - Match selectors
+///  #{matches(".main %m", section article aside nav)} {
+///  	color: #000000;
+///  }
+/// @throw WARN "No `%m` found in `#{$string}`."
+
+@function matches($string, $selectors) {
+	$index: str-index($string, "%m");
+	@if not $index {
+		@warn "smh, no `%m` found in `#{$string}` ~ matches";
+		@return false;
+	}
+
+	$result: ();
+	@each $selector in $selectors {
+		$fragment: if($index > 2, str-slice($string, 1, $index - 1), "") + $selector + str-slice($string, $index + 2);
+		$result: append($result, #{$fragment}, comma);
+	}
+
+	@return $result;
+}
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//
+//   ____ _____  ____  _________  _  __
+//  / __ `/ __ \/ __ \/ ___/ __ \| |/_/
+// / /_/ / /_/ / /_/ / /  / /_/ />  <
+// \__,_/ .___/ .___/_/   \____/_/|_|
+//     /_/   /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Check whether 2 floats are equal or not
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+///
+/// Because you cannot expect a float to be precise.
+/// If you expect 0.12 to equal 0.10 + 0.02, you are wrong.
+/// +===============================================================================-
+///
+/// @param [number] $a: first number
+/// @param [number] $b: second number
+/// @param [number] $tolerance: tolerance (epsilon)
+/// @return [bool]
+
+@function approximately-equal($a, $b, $tolerance: 0.0000001) {
+	@return abs($a - $b) <= $tolerance;
+}
+
+/// @alias
+@function a-equal($a, $b, $tolerance: 0.0000001) {
+	@return approximately-equal($a, $b, $tolerance);
+}
+
+
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | ASSERT
+// +==============================================================================
+
+/// Throw $message if $condition is not meant
+/// @param {*} $condition - Condition
+/// @message {String} $message - Error message
+@mixin assert($condition, $message) {
+	@if not $condition {
+		@error #{$message};
+	}
+}
+
+/// Multiple asserts at once
+/// @param {Map} $asserts - Keys are messages, values are conditions
+/// @require {mixin} assert
+@mixin assert-group($asserts) {
+	@each $message, $condition in $asserts {
+		@include assert($condition, $message);
+	}
+}
+
+//@mixin size($width, $height: $width) {
+//	@include assert-group((
+//		'$width should be a number.': type-of($width) == 'number',
+//		'$height should be a number.': type-of($height) == 'number'
+//	));
+//
+//	width: $width;
+//	height: $height;
+//}
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                                        __
+//   ____  ____     ___ _   _____  ____  / /_
+//  / __ \/ __ \   / _ \ | / / _ \/ __ \/ __/
+// / /_/ / / / /  /  __/ |/ /  __/ / / / /_
+// \____/_/ /_/   \___/|___/\___/_/ /_/\__/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// |	Change identical property values across all events
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+////
+
+/// Bind all events, including self state if `$self` is true.
+/// @author Harry Roberts
+/// @link https://github.com/csswizardry/csswizardry.github.com/blob/master/css/_tools.mixins.scss#L13 CSSWizardry
+/// @param {Bool} $self - Include self state
+/// @output `:hover`, `:active` and `:focus`
+
+@mixin on-event($self: false) {
+	// If $self is truthy, include self state
+	@if $self {
+		&,
+		&:hover,
+		&:active,
+		&:focus { @content }
+	}
+
+	@else {
+		&:hover,
+		&:active,
+		&:focus { @content }
+	}
+}
+
+/// Define a context for the current selector
+/// @author Hugo Giraudel
+/// @param {String} $context - Context
+/// @output `#{$context} & { ... }`
+@mixin when-inside($context) {
+	#{$context} & {
+		@content;
+	}
+}
+// -------------------------------------------------------------------------------
+//  HOVER
+// -------------------------------------------------------------------------------
+
+@mixin hover() {
+	.desktop &,
+	.no-js & {
+		&:hover,
+		&.hover {
+			@content;
+		}
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  HOVER + ACTIVE
+// -------------------------------------------------------------------------------
+
+@mixin hover-active() {
+	.desktop &,
+	.no-js & {
+		&:hover,
+		&.hover {
+			@content;
+		}
+	}
+	&:active,
+	&.active {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  HOVER + ACTIVE + FOCUS
+// -------------------------------------------------------------------------------
+
+@mixin hover-active-focus() {
+	.desktop &,
+	.no-js & {
+		&:hover,
+		&.hover {
+			@content;
+		}
+	}
+	&:active,
+	&:focus {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  EVENTS
+// -------------------------------------------------------------------------------
+
+@mixin all-events() {
+	&:hover,
+	&.hover {
+		.desktop &,
+		.no-js & {
+			@content;
+		}
+	}
+	&:active,
+	&.active,
+	&:visited,
+	&:focus,
+	&:checked {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  DISABLED
+// -------------------------------------------------------------------------------
+
+@mixin disabled() {
+	&:disabled,
+	&.disabled,
+	&[disabled] {
+		@content;
+	}
+}
+
+// ------------------------------------------------------------------------------
+// !-- GRABBING
+// ------------------------------------------------------------------------------
+
+@mixin grabbing() {
+	&:active {
+		cursor: -webkit-grabbing !important;
+		cursor: -moz-grabbing !important;
+		cursor: grabbing !important;
+	}
+}
+
+// ------------------------------------------------------------------------------
+// !-- GRAB
+// ------------------------------------------------------------------------------
+
+@mixin grab() {
+	cursor: move;
+	cursor: -webkit-grab;
+	cursor: -moz-grab;
+	cursor: grab;
+	@include grabbing();
+}
+
+// ------------------------------------------------------------------------------
+// !-- POINTER
+// ------------------------------------------------------------------------------
+
+@mixin pointer() {
+	cursor: pointer;
+	cursor: hand;
+}
+
+// ------------------------------------------------------------------------------
+// !-- No Pointer
+// ------------------------------------------------------------------------------
+
+@mixin no-pointer() {
+	pointer-events: none;
+}
+
+// ------------------------------------------------------------------------------
+// !-- ACTIVE CLICK
+// ------------------------------------------------------------------------------
+//$active-click-transform: scale(0.96) !default;;
+//$hover-grow-transform: scale(1.04) !default;
+//
+//@mixin active-click($grow:false) {
+//	cursor: pointer;
+//	transition: all $transition-speed $transition-easing;
+//	&:active {
+//		transform: $active-click-transform;
+//	}
+//	.mobile &,
+//	.tablet & {
+//		&:focus {
+//			transform: $active-click-transform;
+//		}
+//	}
+//	@if $grow {
+//		@include hover() {
+//			transform: $hover-grow-transform;
+//			&:active {
+//				transform: $active-click-transform;
+//			}
+//		}
+//		.mobile &,
+//		.tablet & {
+//			&:focus {
+//				transform: $active-click-transform;
+//			}
+//		}
+//	}
+//}
+
+// ------------------------------------------------------------------------------
+// !-- SHADOW CLICK
+// ------------------------------------------------------------------------------
+
+//@mixin shadow-click() {
+//	cursor: pointer;
+//	transition: all $transition-speed $transition-easing;
+//	@include z-depth(1);
+//	&:active {
+//		@include z-depth(3);
+//	}
+//}
+
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                _ __
+//   __  ______  (_) /______
+//  / / / / __ \/ / __/ ___/
+// / /_/ / / / / / /_(__  )
+// \__,_/_/ /_/_/\__/____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// |	Unit Helpers
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @private
+/// @group Helpers
+/// @author David Victor
+////
+
+/// Input measure is in pixels
+//  +==============================================================================-
+/// @private
+/// @param {String} $p - property
+/// @param {Number} $v - values
+/// @param {String} $i - important
+/// @param {String} $m - modifier
+/// @require rem-calc, px-calc, rem-set, px-set
+
+@mixin _is-px($p,$v,$i:null,$m:null) {
+	@if $i != null {
+		$i: !important;
+	}
+	@if $v == auto {
+		#{$p}#{$m}: auto;
+	}
+	@else if $v == 0 {
+		#{$p}#{$m}: $v;
+	}
+	@else {
+		#{$p}#{$m}: rem-calc($v) + #{$i};
+	}
+}
+
+/// Input measure is in rem
+//  +==============================================================================-
+/// @private
+/// @param {String} $p - property
+/// @param {Number} $v - values
+/// @param {String} $i - important
+/// @param {String} $m - modifier
+/// @require rem-calc, px-calc, rem-set, px-set
+
+@mixin _is-rem($p,$v,$i:null,$m:null) {
+	@if $i != null {
+		$i: !important;
+	}
+	@if $v == auto {
+		#{$p}#{$m}: auto;
+	}
+	@else if $v == 0 {
+		#{$p}#{$m}: $v;
+	}
+	@else {
+		#{$p}#{$m}: rem-set($v) + #{$i};
+	}
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                              ____
+//   ____  ____  ___     ____  / __/  ____
+//  / __ \/ __ \/ _ \   / __ \/ /_   / __ \
+// / /_/ / / / /  __/  / /_/ / __/  / / / /
+// \____/_/ /_/\___/   \____/_/    /_/ /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | One of n siblings
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+/// @author David Victor
+////
+
+/// @param {Arglist} $countArg - Pass an argument
+/// @example scss - How to use
+///  @include one-of-n-siblings( 5 ) {
+//			background-color: #FCC;
+//		}
+//		@include one-of-n-siblings( "n + 6" ) {
+//			background-color: #CFC;
+//		}
+//		@include one-of-n-siblings( "-n + 4" ) {
+//			background-color: #CCF;
+//		}
+@mixin one-of-n-siblings( $countArg... ){
+	&:nth-last-child( #{$countArg} ):first-child,
+	&:nth-last-child( #{$countArg} ):first-child ~ & {
+		@content;
+	}
+}
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | POSITION
+// +==============================================================================
+
+@mixin pos($position, $args: (), $i: false) {
+  $offsets: top right bottom left;
+  position: $position;
+  @each $offset in $offsets {
+    $index: index($args, $offset);
+    @if $index {
+      @if $index == length($args) {
+        @if $i {
+          #{$offset}: 0 !important;
+        }
+        @else {
+          #{$offset}: 0;
+        }
+      }
+      @else {
+        $next: nth($args, $index + 1);
+        @if is-length($next) {
+          @if $i {
+            #{$offset}: $next !important;
+          }
+          @else {
+            #{$offset}: $next;
+          }
+        }
+        @else if index($offsets, $next) {
+          @if $i {
+            #{$offset}: 0 !important;
+          }
+          @else {
+            #{$offset}: 0;
+          }
+        }
+        @else {
+          @warn "Invalid value `#{$next}` for offset `#{$offset}`.";
+        }
+      }
+    }
+  }
+}
+
+@mixin absolute($args: (), $i: false) {
+  @include pos(absolute, $args);
+}
+
+@mixin fixed($args: (), $i: false) {
+  @include pos(fixed, $args);
+}
+
+@mixin relative($args: (), $i: false) {
+  @include pos(relative, $args);
+}
+
+@mixin absolute-center($width, $height) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: $width;
+  height: $height;
+  margin: -$height / 2 0 0 -$width / 2;
+}
+
+@mixin coverer() {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+@mixin centerer() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin vert($pos:relative) {
+	@if $pos == relative {
+		position: relative;
+	} @elseif $pos == absolute {
+		position: absolute;
+	} @else {
+		@warn "smh, '$pos' is not a valid position ~ via vert";
+	}
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+}
+
+@mixin vert-ghost() {
+  &:before {
+    content: '';
+    display: inline-block;
+		height: 100%;
+    vertical-align: middle;
+    width: .1px;
+  }
+}
+
+@mixin translate($horizontal: 0, $vertical: 0) {
+  transform: translate($horizontal, $vertical);
+}
+
+
+@mixin cover-div() {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+}
+
+@mixin overlay-params($opacity-strength, $background-color) {
+	@include cover-div();
+	content: '';
+	opacity: $opacity-strength;
+	z-index: 2;
+	background-color: $background-color;
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                      ___ ____
+//   ____ ___  ______ _/ (_) __/_  __
+//  / __ `/ / / / __ `/ / / /_/ / / /
+// / /_/ / /_/ / /_/ / / / __/ /_/ /
+// \__, /\__,_/\__,_/_/_/_/  \__, /
+//   /_/                    /____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Qualify a class
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+///
+/// Since the current way to qualify a class from within its ruleset is quite
+/// ugly, here is a mixin providing a friendly API to do so.
+// +===============================================================================-
+/// @author Hugo Giraudel
+/// @param {String} $element-selector - Element selector
+///
+/// @example scss .button {
+///  	border: none;
+///  	@include qualify(button) {
+///  		-webkit-appearance: none;
+///  	}
+///  	@include when-is(a) {
+///  		text-decoration: none;
+///  	}
+///  }
+
+@mixin qualify($element-selector) {
+	@at-root #{$element-selector + #{&}} {
+		@content;
+	}
+}
+
+/// @alias qualify
+@mixin when-is($args...) {
+	@include qualify($args...) { @content; }
+}
+
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//               __  _
+//    ________  / /_(_)___  ____ _
+//   / ___/ _ \/ __/ / __ \/ __ `/
+//  / /  /  __/ /_/ / / / / /_/ /
+// /_/   \___/\__/_/_/ /_/\__,_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Mixins to target devices with high density screens
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+/// @author David Victor
+////
+
+// -------------------------------------------------------------------------------
+//  HDPI
+// -------------------------------------------------------------------------------
+// HiDPI mixin. Default value set to 1.3 to target Google Nexus 7 (http://bjango.com/articles/min-device-pixel-ratio/)
+
+@mixin hidpi($ratio: 1.3) {
+  @media only screen and (-webkit-min-device-pixel-ratio: $ratio),
+  only screen and (min--moz-device-pixel-ratio: $ratio),
+  only screen and (-o-min-device-pixel-ratio: #{$ratio}/1),
+  only screen and (min-device-pixel-ratio: $ratio),
+  only screen and (min-resolution: #{round($ratio*96)}dpi),
+  only screen and (min-resolution: #{$ratio}dppx) {
+    @content;
+  }
+}
+
+// -------------------------------------------------------------------------------
+//  RETINA IMAGE
+// -------------------------------------------------------------------------------
+
+@mixin retina-image($filename, $background-size, $extension: png, $retina-filename: null, $retina-suffix: _2x, $asset-pipeline: false) {
+  @if $asset-pipeline {
+		//noinspection CssInvalidFunction
+    background-image: image-url("#{$filename}.#{$extension}");
+  }
+  @else {
+    background-image: url("#{$filename}.#{$extension}");
+  }
+
+  @include hidpi() {
+    @if $asset-pipeline {
+      @if $retina-filename {
+				//noinspection CssInvalidFunction
+				background-image: image-url("#{$retina-filename}.#{$extension}");
+      }
+      @else {
+				//noinspection CssInvalidFunction
+        background-image: image-url("#{$filename}#{$retina-suffix}.#{$extension}");
+      }
+    }
+
+    @else {
+      @if $retina-filename {
+        background-image: url("#{$retina-filename}.#{$extension}");
+      }
+      @else {
+        background-image: url("#{$filename}#{$retina-suffix}.#{$extension}");
+      }
+    }
+
+    background-size: $background-size;
+
+  }
+}
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                          ______
+//    ___________________  / / / /_  ____ ___________
+//   / ___/ ___/ ___/ __ \/ / / __ \/ __ `/ ___/ ___/
+//  (__  ) /__/ /  / /_/ / / / /_/ / /_/ / /  (__  )
+// /____/\___/_/   \____/_/_/_.___/\__,_/_/  /____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Custom scrollbars
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+////
+/// Mixin to customize scrollbars
+/// Beware, this does not work in all browsers
+/// @author Hugo Giraudel
+/// @param {Length} $size - Horizontal scrollbar's height and vertical scrollbar's width
+/// @param {Color} $foreground-color - Scrollbar's color
+/// @param {Color} $background-color [mix($primary, white, 75%)] - Scrollbar's color
+/// @example scss - Scrollbar styling
+///   @include scrollbars(.5em, slategray);
+
+@mixin scrollbars(
+	$size,
+	$foreground-color,
+	$background-color: mix($foreground-color, white, 50%)) {
+
+	::-webkit-scrollbar {
+		width:  $size;
+		height: $size;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: $foreground-color;
+	}
+
+	::-webkit-scrollbar-track {
+		background: $background-color;
+	}
+
+	// For Internet Explorer
+	body {
+		scrollbar-face-color: $foreground-color;
+		scrollbar-track-color: $background-color;
+	}
+}
+
+
+/*
+:horizontal
+:vertical
+:decrement
+:increment
+:start
+:end
+:double-button
+:single-button
+:no-button
+:corner-present
+:window-inactive
+*/
+
+/*
+::-webkit-scrollbar              {}
+::-webkit-scrollbar-button       {}
+::-webkit-scrollbar-track        {}
+::-webkit-scrollbar-track-piece  {}
+::-webkit-scrollbar-thumb        {}
+::-webkit-scrollbar-corner       {}
+::-webkit-resizer                {}
+
+*/
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//          __
+//    _____/ /_  ____ _________
+//   / ___/ __ \/ __ `/ ___/ _ \
+//  (__  ) / / / /_/ / /  /  __/
+// /____/_/ /_/\__,_/_/   \___/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Share a single value across multiple properties
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+/// @author David Victor
+////
+/// Share a single value across multiple properties
+//  +==============================================================================-
+/// @param {argList} $props - Value being shared is last in list
+/// @example scss - Value shared with padding
+///  @include share(padding-top, padding-bottom, 23px);
+/// @throw WARN ~ smh, you must share a value with a property ~ share
+
+@mixin share($props...) {
+	@if length($props) > 1 {
+		@for $i from 1 to length($props) {
+			#{nth($props, $i)}: nth($props, -1);
+		}
+	} @else {
+		@include WARN("smh, you must share a value with a property ~ share");
+	}
+}
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//        __     __
+//   ____/ /__  / /_  __  ______ _
+//  / __  / _ \/ __ \/ / / / __ `/
+// / /_/ /  __/ /_/ / /_/ / /_/ /
+// \__,_/\___/_.___/\__,_/\__, /
+//                       /____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Debug
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+/// @author Hugo Guidal
+////
+/// Returns list as a string
+//  +==============================================================================-
+/// @example debug(a b c d e)   => [ a, b, c, d, e ]
+/// @example debug(a b (c d e)) => [ a, b, [ c, d, e ] ]
+/// @param {Map} $list - list
+/// @param {Bool} $pre [false] - enable/disable variables type and proper indentation
+/// @param {Number} $level - internal variable for recursivity
+/// @return {String}
+@function debug($list, $pre: false, $level: 1) {
+    $tab: "    ";
+    $indent: "";
+    $break: if($pre, "\A ", "");
+    @if length($list) == 0 {
+        @return "( )";
+    }
+    @if length($list) == 1 {
+        @return if($pre, "(" + type-of($list) + ") ", "") + $list;
+    }
+    @for $i from 1 to $level {
+        $indent: $indent + $tab;
+    }
+    $result: "[" + $break;
+    @for $i from 1 through length($list) {
+        $item: nth($list, $i);
+        $result: $result + if($pre, $indent + $tab, " ");
+        @if length($item) > 1 {
+            $result: $result + if($pre, "(list: " + length($item) + ") ", "") + debug($item, $pre, $level + 1);
+        }
+        @else {
+            @if $pre {
+                $result: $result + "(" + type-of($item) + ") ";
+            }
+            @if length($item) == 0 {
+                $result: $result + "( )";
+            }
+            @else if type-of($item) == string {
+                $result: $result + quote($item);
+            }
+            @else if $item == null {
+                $result: $result + "null";
+            }
+            @else {
+                $result: $result + $item;
+            }
+        }
+        @if $i != length($list) {
+            $result: $result + "," + $break;
+        }
+    }
+    $result: $result + $break + if($pre, if($level > 1, $indent, ""), " ") + "]";
+    @return quote($result);
+}
+
+/// Mixin displaying clean debug
+// -------------------------------------------------------------------------------
+/// @param {List} $list - list
+
+@mixin debug($list) {
+    body:before {
+        content: debug($list, true) !important;
+        display: block                            !important;
+        position: absolute;
+        margin: 1em                               !important;
+        padding: .5em                             !important;
+        background: #EFEFEF                       !important;
+        border: 1px solid #DDD                    !important;
+        border-radius: .2em                       !important;
+        color: #333                               !important;
+        font: .75em/1.5 "Courier New", monospace  !important;
+        text-shadow: 0 1px white                  !important;
+        white-space: pre-wrap                     !important;
+        z-index: 2147483647 !important;
+    }
+}
+
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//     __
+//    / /___  ____ _____ ____  _____
+//   / / __ \/ __ `/ __ `/ _ \/ ___/
+//  / / /_/ / /_/ / /_/ /  __/ /
+// /_/\____/\__, /\__, /\___/_/
+//         /____//____/
+////
+/// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+/// | Error and exception handling
+/// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+/// @group Logs
+/// @author Hugo Giraudel
+/// @link https://github.com/HugoGiraudel/SassyLogger
+////
+
+/// @type Map
+$logger-configuration: () !default;
+
+/// Helper to get a key from `$logger-configuration` map.
+/// @access private
+/// @param {String} $key - Option to get from map
+/// @requires $logger-configuration
+/// @return {*} Option from `$logger-configuration` or `null` if `$key` doesn't exist.
+/// @example scss - Get history from configuration map
+/// $history: logger-conf("history");
+
+@function logger-conf($key) {
+	@return map-get($logger-configuration, $key);
+}
+
+
+/// Instantiate a logger.
+/// This should be called once only.
+/// @param {String} minimum-level - Level at which the logger starts printing. Use `OFF` to disable.
+/// @requires {function} logger-conf
+/// @output Nothing, it just creates a global configuration map.
+/// @example scss - Instantiate a new logger logging INFO and up.
+///  @include logger("INFO");
+
+@mixin logger($minimum-level) {
+  // Create global variable
+  $logger-configuration: (
+    "levels"  : "DEBUG" "INFO" "WARN" "ERROR" "FATAL",
+    "errors"  : "FATAL" "ERROR",
+    "min"     : $minimum-level,
+    "history" : (
+      "DEBUG" : (),
+      "INFO"  : (),
+      "WARN"  : (),
+      "ERROR" : (),
+      "FATAL" : ()
+    )
+  ) !global;
+
+  // Cache "min-level" in the global map to improve performance
+  $logger-configuration: map-merge($logger-configuration,
+    ("min-level": index(logger-conf("levels"), logger-conf("min")))
+  ) !global;
+}
+
+
+/// Update logger history
+/// @access private
+/// @param {String} $level - Message's level
+/// @param {String} $message - Message to log
+/// @requires {function} logger-conf
+/// @requires $logger-configuration
+/// @output Nothing
+/// @example scss - Update logger history with new entry
+///  @include logger-update-history($level, $message);
+
+@mixin logger-update-history($level, $message) {
+	$history: logger-conf("history");
+	$current-level-history: map-get($history, $level);
+	$current-level-history: append($current-level-history, $message);
+	$logger-history: map-merge($history, ($level: $current-level-history));
+	$logger-configuration: map-merge($logger-configuration, ("history": $logger-history)) !global;
+}
+
+
+/// Log a new `$message` with `$level`.
+/// @access private
+/// @param {String} $level - Message's level
+/// @param {String} $message - Message to log
+/// @requires {function} logger-conf
+/// @requires {mixin} logger-update-history
+/// @output Nothing, but warn/error in the console
+/// @example scss - Log a new error.
+///  @include log("ERROR", "Something's wrong.");
+
+@mixin log($level, $message) {
+  // If no logger has been instantiated, create one
+  @if not global-variable-exists("logger-configuration") {
+    @include logger("INFO");
+  }
+
+  $level: to-upper-case($level);
+
+  // Unless it's disabled, proceed
+  @if $level != "OFF" {
+    // Get current level's index
+    $index-current-level: index(logger-conf("levels"), $level);
+
+    // If `$level` is invalid, falls back on `INFO`
+    @if not $index-current-level { $level: "INFO" }
+
+    // Update logger history
+    @include logger-update-history($level, $message);
+
+    // Finally, print message in console if current level is over minimum level
+    @if $index-current-level >= logger-conf("min-level") {
+      $print: $level + " :: " + $message;
+
+      // `@error` if it's an error level
+      @if index(logger-conf("errors"), $level) {
+        @error #{$print};
+      }
+
+      // Else `@warn`
+      @else {
+        @warn #{$print};
+      }
+    }
+  }
+}
+
+
+/// Print logger history
+/// @requires logger-conf
+/// @output A `logger-logs` block
+/// @example scss - Print current logs.
+///  @include logger-print-logs;
+
+@mixin logger-print-logs() {
+  .logger-logs {
+    @each $level, $logs in logger-conf("history") {
+      @if length($logs) > 0 {
+        @each $log in $logs {
+          #{$level}: $log;
+        }
+      }
+    }
+  }
+}
+
+
+/// Print some extra information about logger levels and what they mean
+/// @output A `logger-help` block
+/// @example scss - Print some extra help.
+///  @include logger-help;
+
+@mixin logger-help() {
+  .logger-help {
+    OFF: "Disable the logger.";
+    FATAL: "Severe errors that cause premature termination.";
+    ERROR: "Other runtime errors or unexpected conditions.";
+    WARN: "Use of deprecated APIs, poor use of API, 'almost' errors,"
+    + "other runtime situations that are undesirable or unexpected, but not necessarily wrong.";
+    INFO: "Interesting runtime events (startup/shutdown).";
+    DEBUG: "Detailed information on the flow through the system.";
+  }
+}
+
+
+/// Shortcut for `log` mixin - FATAL.
+/// @alias log
+@mixin FATAL($message) { @include log("FATAL", $message); }
+
+
+/// Shortcut for `log` mixin - ERROR.
+/// @alias log
+@mixin ERROR($message) { @include log("ERROR", $message); }
+
+
+/// Shortcut for `log` mixin - WARN.
+/// @alias log
+@mixin  WARN($message) { @include log("WARN",  $message); }
+
+
+/// Shortcut for `log` mixin - INFO.
+/// @alias log
+@mixin  INFO($message) { @include log("INFO",  $message); }
+
+
+/// Shortcut for `log` mixin - DEBUG.
+/// @alias log
+@mixin DEBUG($message) { @include log("DEBUG", $message); }
+
+
+//
+//@include target(debug) {
+//	// Instantiate a new logger,
+//	// with "INFO" as the minimum level for logging.
+//	// You can pass extra arguments as well.
+//	// If you don't instantiate it yourself,
+//	// it will be done automatically on first log.
+//	@include logger("INFO");
+//
+//	// Logger help (optional, obviously)
+//	@include logger-help();
+//
+//	// Log stuff
+//	@include INFO("Hey, look at that.");
+//	@include INFO("Bring in the unicorns!");
+//	//@include WARN("Dude, pay attention.");
+//
+//	// This one is not printed in the console but still tracked in logs.
+//	@include DEBUG("Debug and stuff.");
+//
+//	// Output history (optional),
+//	// especially useful for debugging.
+//	@include logger-print-logs();
+//}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                               __                   __  _
+//   ____ __________  ___  _____/ /_      _________ _/ /_(_)___
+//  / __ `/ ___/ __ \/ _ \/ ___/ __/_____/ ___/ __ `/ __/ / __ \
+// / /_/ (__  ) /_/ /  __/ /__/ /_/_____/ /  / /_/ / /_/ / /_/ /
+// \__,_/____/ .___/\___/\___/\__/     /_/   \__,_/\__/_/\____/
+//          /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Aspect Ratio Media Query
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Responsive
+/// @author David Victor
+////
+/// Create media query based on aspect ratio
+//  +==============================================================================-
+/// @param {Number} $numerator - Numerator
+/// @param {Number} $denominator - Denominator
+/// @param {Bool} $min-max - Min or Max
+///
+@mixin aspect-ratio($numerator, $denominator, $min-max:false) {
+	$media-query: '';
+	@if $min-max {
+		$media-query: "all and (#{$min-max}-aspect-ratio: #{$numerator}/#{$denominator})";
+	} @else {
+		$media-query: "all and (aspect-ratio: #{$numerator}/#{$denominator})";
+	}
+	@media #{$media-query} {
+		@content;
+	}
+}
+
+/// @alias aspect-ratio
+@mixin ar($args...) {
+	@include aspect-ratio($args...);
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                                    __
+//    _________  ________  ____ _____/ /
+//   / ___/ __ \/ ___/ _ \/ __ `/ __  /
+//  (__  ) /_/ / /  /  __/ /_/ / /_/ /
+// /____/ .___/_/   \___/\__,_/\__,_/
+//     /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Spread values across screen width
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Responsive
+/// @author David Victor
+////
+
+/// spreads a property value from min to max across media queries
+/// @param {} $property - CSS property to set
+/// @param {String} $property-min - min value of the property
+/// @param {String} $property-max - max value of the property
+/// @param {String} $dimension - media query dimension - min-width, min-height, max-width, max-height
+/// @param {String} $dimension-min - first media query of the chosen dimension
+/// @param {String} $dimension-max - final media query of the chosen dimension
+/// @param {Boolean} $default-value - true/false (defaults to true). Should a default value (min for min-width/height, max for max-width/height) be included outside the query?
+/// @param {String} $precision - how many pixels each media query should cover
+/// @param {String} $ease - easing function to use when calculating value helpful for fine-tuning some widths in the mid-range
+/// @require strip-unit
+/// @require ease
+@mixin spread($property, $property-min, $property-max, $dimension: min-width, $dimension-min: 320px, $dimension-max: 1920, $default-value: true, $precision: 50px, $ease: linear) {
+	$total-iterations: abs(strip-unit(ceil(($dimension-max - $dimension-min) / $precision))) - 1;
+	$max-dimension: $dimension == max-width or $dimension == max-height;
+
+	@if $default-value {
+		#{$property}: if($max-dimension, $property-max, $property-min);
+	}
+
+	@for $iteration from 0 through $total-iterations {
+		$iteration: if($max-dimension, $total-iterations - $iteration, $iteration);
+
+		@media (#{$dimension}: $dimension-min + $iteration * $precision) {
+			#{$property}: ease($iteration, $property-min, $property-max - $property-min, $total-iterations, $ease);
+		}
+	}
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+
+
+// +==============================================================================
+// | UNIVERSAL BOX MODEL PRIVATE
+// +==============================================================================
+
+/// Universal Box Model
+/// @group Properties
+/// @author David Victor
+/// @access private
+/// @since 0.9.0
+/// @requires _is-px
+/// @requires _is-rem
+/// @param {list} $v - values
+/// @param {list} $l - locations
+/// @param {*} $i - important flag
+/// @param {unit} $u - output unit
+/// @param {*} $p - output property
+
+@mixin _ubm($v, $l, $i, $u, $p) {
+	@if $l == null {
+		@if $u == px {
+			@include _is-px($p, $v, $i);
+		} @else if $u == rem {
+			@include _is-rem($p, $v, $i);
+		} @else {
+			@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+		}
+	} @else {
+		@if sl-contain($l, horizontal) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -right);
+				@include _is-px($p, $v, $i, -left);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -right);
+				@include _is-rem($p, $v, $i, -left);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, vertical) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -top);
+				@include _is-px($p, $v, $i, -bottom);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -top);
+				@include _is-rem($p, $v, $i, -bottom);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, top) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -top);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -top);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, left) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -left);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -left);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, bottom) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -bottom);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -bottom);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, right) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -right);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -right);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+	}
+}
+
+
+
+
+
+//               ___
+//    ____ ___  ( _ )   ____
+//   / __ `__ \/ __ \/|/ __ \
+//  / / / / / / /_/  </ /_/ /
+// /_/ /_/ /_/\____/\/ .___/
+//                  /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Margin & Padding
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Box Model
+/// @author David Victor
+////
+
+/// Cross Browser Margin & Padding
+/// @since 0.9.0
+/// @requires _is-px
+/// @requires _is-rem
+/// @require __umb
+/// @param {list} $v - values
+/// @param {list} $l - locations
+/// @param {*} $i - important flag
+/// @param {unit} $u - output unit
+/// @param {*} $p - output property
+///
+@mixin p($v, $l: null, $i: null, $u: rem) {
+	@include _ubm($v, $l, $i, $u, $p: padding);
+}
+
+@mixin m($v, $l: null, $i: null, $u: rem) {
+	@include _ubm($v, $l, $i, $u, $p: margin);
+}
+
+// -------------------------------------------------------------------------------
+//  Box Sizing
+// -------------------------------------------------------------------------------
+
+@mixin box-sizing($box) {
+	box-sizing: $box;
+}
+
+// -------------------------------------------------------------------------------
+//  Align Center
+// -------------------------------------------------------------------------------
+
+@mixin align-center() {
+	margin: 0 auto;
+}
+
+// ------------------------------------------------------------------------------
+// !-- Abs
+// ------------------------------------------------------------------------------
+
+@mixin abs() {
+	position: absolute;
+}
+
+// ------------------------------------------------------------------------------
+// !-- Rel
+// ------------------------------------------------------------------------------
+
+@mixin rel() {
+	position: relative;
+}
+
+// ------------------------------------------------------------------------------
+// !-- Fixed
+// ------------------------------------------------------------------------------
+
+@mixin fixed() {
+	position: fixed;
+}
+
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//     ____            __     ____           __
+//    / __/___  ____  / /_   / __/__  ____ _/ /___  __________  _____
+//   / /_/ __ \/ __ \/ __/  / /_/ _ \/ __ `/ __/ / / / ___/ _ \/ ___/
+//  / __/ /_/ / / / / /_   / __/  __/ /_/ / /_/ /_/ / /  /  __(__  )
+// /_/  \____/_/ /_/\__/  /_/  \___/\__,_/\__/\__,_/_/   \___/____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Font feature settings
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Properties
+/// @author David Victor
+////
+
+@mixin font-feature-settings($feature-list: false)
+{
+	// Only proceed if a list of arguments was passed
+	@if $feature-list
+	{
+		// Create an empty list for the standard syntax
+		$standard: ();
+
+		// Create an empty list for the old Mozilla syntax
+		$old-moz: ();
+
+		// Add each listed feature to the standard and old Mozilla values
+		@each $feature in $feature-list
+		{
+			$standard: append( $standard, '#{$feature}' 1, comma );
+			$old-moz: append( $old-moz, '#{$feature}=1', comma );
+		}
+
+		// Finally, print out the prefixed and non-prefixed code for all of the listed features
+		-moz-font-feature-settings: $old-moz;
+		-moz-font-feature-settings: $standard;
+		-ms-font-feature-settings: $standard;
+		-o-font-feature-settings: $standard;
+		-webkit-font-feature-settings: $standard;
+		font-feature-settings: $standard;
+	}
+}
+
+//@mixin font-feature-settings($feature-list: null, $extend: null) {
+//	$extend: if($extend != null, $extend, roar-get('ligatures'));
+//	$feature-list: if($feature-list != null, $feature-list, roar-get('ligatures'));
+//
+//	@if $feature-list {
+//		// Create an empty list for the standard syntax
+//		$standard: ();
+//		// Create an empty list for the old Mozilla syntax
+//		$old-moz: ();
+//		// Add each listed feature to the standard and old Mozilla values
+//		@each $feature in $feature-list {
+//			$standard: append($standard, '#{$feature}' 1, comma);
+//			$old-moz: append($old-moz, '#{$feature}=1', comma);
+//		}
+//		@if $extend {
+//			@include dynamic-extend('font feature settings') {
+//				@include font-feature-settings();
+//			}
+//		} @else {
+//			-moz-font-feature-settings: $old-moz;
+//			-moz-font-feature-settings: $standard;
+//			-ms-font-feature-settings: $standard;
+//			-o-font-feature-settings: $standard;
+//			-webkit-font-feature-settings: $standard;
+//			font-feature-settings: $standard;
+//		}
+//	}
+//}
+
+
+// AVAILABLE TAGS
+
+//    aalt - Access All Alternates
+//    abvf - Above-base Forms
+//    abvm - Above-base Mark Positioning
+//    abvs - Above-base Substitutions
+//    afrc - Alternative Fractions
+//    akhn - Akhands
+//    blwf - Below-base Forms
+//    blwm - Below-base Mark Positioning
+//    blws - Below-base Substitutions
+//    calt - Contextual Alternates
+//    case - Case-Sensitive Forms
+//    ccmp - Glyph Composition / Decomposition
+//    cfar - Conjunct Form After Ro
+//    cjct - Conjunct Forms
+//    clig - Contextual Ligatures
+//    cpct - Centered CJK Punctuation
+//    cpsp - Capital Spacing
+//    cswh - Contextual Swash
+//    curs - Cursive Positioning
+//    cvNN - Character Variants (NN is a two digit number)
+//    c2pc - Petite Capitals From Capitals
+//    c2sc - Small Capitals From Capitals
+//    dist - Distances
+//    dlig - Discretionary Ligatures
+//    dnom - Denominators
+//    expt - Expert Forms
+//    falt - Final Glyph on Line Alternates
+//    fin2 - Terminal Forms #2
+//    fin3 - Terminal Forms #3
+//    fina - Terminal Forms
+//    frac - Fractions
+//    fwid - Full Widths
+//    half - Half Forms
+//    haln - Halant Forms
+//    halt - Alternate Half Widths
+//    hist - Historical Forms
+//    hkna - Horizontal Kana Alternates
+//    hlig - Historical Ligatures
+//    hngl - Hangul
+//    hojo - Hojo Kanji Forms (JIS X 0212-1990 Kanji Forms)
+//    hwid - Half Widths
+//    init - Initial Forms
+//    isol - Isolated Forms
+//    ital - Italics
+//    jalt - Justification Alternates
+//    jp78 - JIS78 Forms
+//    jp83 - JIS83 Forms
+//    jp90 - JIS90 Forms
+//    jp04 - JIS2004 Forms
+//    kern - Kerning
+//    lfbd - Left Bounds
+//    liga - Standard Ligatures
+//    ljmo - Leading Jamo Forms
+//    lnum - Lining Figures
+//    locl - Localized Forms
+//    ltra - Left-to-right alternates
+//    ltrm - Left-to-right mirrored forms
+//    mark - Mark Positioning
+//    med2 - Medial Forms #2
+//    medi - Medial Forms
+//    mgrk - Mathematical Greek
+//    mkmk - Mark to Mark Positioning
+//    mset - Mark Positioning via Substitution
+//    nalt - Alternate Annotation Forms
+//    nlck - NLC
+//    nukt - Nukta Forms
+//    numr - Numerators
+//    onum - Oldstyle Figures
+//    opbd - Optical Bounds
+//    ordn - Ordinals
+//    ornm - Ornaments
+//    palt - Proportional Alternate Widths
+//    pcap - Petite Capitals
+//    pkna - Proportional Kana
+//    pnum - Proportional Figures
+//    pref - Pre-Base Forms
+//    pres - Pre-base Substitutions
+//    pstf - Post-base Forms
+//    psts - Post-base Substitutions
+//    pwid - Proportional Widths
+//    qwid - Quarter Widths
+//    rand - Randomize
+//    rkrf - Rakar Forms
+//    rlig - Required Ligatures
+//    rphf - Reph Forms
+//    rtbd - Right Bounds
+//    rtla - Right-to-left alternates
+//    rtlm - Right-to-left mirrored forms
+//    ruby - Ruby Notation Forms
+//    salt - Stylistic Alternates
+//    sinf - Scientific Inferiors
+//    size - Optical size
+//    smcp - Small Capitals
+//    smpl - Simplified Forms
+//    ss01 - Stylistic Set 1
+//    ss02 - Stylistic Set 2
+//    ss03 - Stylistic Set 3
+//    ss04 - Stylistic Set 4
+//    ss05 - Stylistic Set 5
+//    ss06 - Stylistic Set 6
+//    ss07 - Stylistic Set 7
+//    ss08 - Stylistic Set 8
+//    ss09 - Stylistic Set 9
+//    ss10 - Stylistic Set 10
+//    ss11 - Stylistic Set 11
+//    ss12 - Stylistic Set 12
+//    ss13 - Stylistic Set 13
+//    ss14 - Stylistic Set 14
+//    ss15 - Stylistic Set 15
+//    ss16 - Stylistic Set 16
+//    ss17 - Stylistic Set 17
+//    ss18 - Stylistic Set 18
+//    ss19 - Stylistic Set 19
+//    ss20 - Stylistic Set 20
+//    subs - Subscript
+//    sups - Superscript
+//    swsh - Swash
+//    titl - Titling
+//    tjmo - Trailing Jamo Forms
+//    tnam - Traditional Name Forms
+//    tnum - Tabular Figures
+//    trad - Traditional Forms
+//    twid - Third Widths
+//    unic - Unicase
+//    valt - Alternate Vertical Metrics
+//    vatu - Vattu Variants
+//    vert - Vertical Writing
+//    vhal - Alternate Vertical Half Metrics
+//    vjmo - Vowel Jamo Forms
+//    vkna - Vertical Kana Alternates
+//    vkrn - Vertical Kerning
+//    vpal - Proportional Alternate Vertical Metrics
+//    vrt2 - Vertical Alternates and Rotation
+//    zero - Slashed Zero
+
+@mixin line-color($color1,$color2) {
+	.line-top,
+	.line-bottom,
+	.line-vertical {
+		&:before,
+		&:after {
+			background: linear-gradient(to bottom, $color1 0%, $color1 50%, $color2 51%, $color2 100%);
+		}
+	}
+	.line-left,
+	.line-right,
+	.line-horizontal {
+		&:before,
+		&:after {
+			background: linear-gradient(to left, $color1 0%, $color1 50%, $color2 51%, $color2 100%);
+		}
+	}
+}
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | POSITION
+// +==============================================================================
+
+@mixin pos($position, $args: (), $i: false) {
+  $offsets: top right bottom left;
+  position: $position;
+  @each $offset in $offsets {
+    $index: index($args, $offset);
+    @if $index {
+      @if $index == length($args) {
+        @if $i {
+          #{$offset}: 0 !important;
+        }
+        @else {
+          #{$offset}: 0;
+        }
+      }
+      @else {
+        $next: nth($args, $index + 1);
+        @if is-length($next) {
+          @if $i {
+            #{$offset}: $next !important;
+          }
+          @else {
+            #{$offset}: $next;
+          }
+        }
+        @else if index($offsets, $next) {
+          @if $i {
+            #{$offset}: 0 !important;
+          }
+          @else {
+            #{$offset}: 0;
+          }
+        }
+        @else {
+          @warn "Invalid value `#{$next}` for offset `#{$offset}`.";
+        }
+      }
+    }
+  }
+}
+
+@mixin absolute($args: (), $i: false) {
+  @include pos(absolute, $args);
+}
+
+@mixin fixed($args: (), $i: false) {
+  @include pos(fixed, $args);
+}
+
+@mixin relative($args: (), $i: false) {
+  @include pos(relative, $args);
+}
+
+@mixin absolute-center($width, $height) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: $width;
+  height: $height;
+  margin: -$height / 2 0 0 -$width / 2;
+}
+
+@mixin coverer() {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+@mixin centerer() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin vert($pos:relative) {
+	@if $pos == relative {
+		position: relative;
+	} @elseif $pos == absolute {
+		position: absolute;
+	} @else {
+		@warn "smh, '$pos' is not a valid position ~ via vert";
+	}
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+}
+
+@mixin vert-ghost() {
+  &:before {
+    content: '';
+    display: inline-block;
+		height: 100%;
+    vertical-align: middle;
+    width: .1px;
+  }
+}
+
+@mixin translate($horizontal: 0, $vertical: 0) {
+  transform: translate($horizontal, $vertical);
+}
+
+
+@mixin cover-div() {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+}
+
+@mixin overlay-params($opacity-strength, $background-color) {
+	@include cover-div();
+	content: '';
+	opacity: $opacity-strength;
+	z-index: 2;
+	background-color: $background-color;
+}
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | PSEUDO
+// +==============================================================================
+
+// -------------------------------------------------------------------------------
+//  Selection
+// -------------------------------------------------------------------------------
+
+@mixin selection() {
+	&::selection,
+	&::-moz-selection {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  Placeholder
+// -------------------------------------------------------------------------------
+
+@mixin placeholder($color: $muted-color) {
+	&:-moz-placeholder {
+		color: $color;
+		@content
+	}
+	&::-moz-placeholder {
+		color: $color;
+		@content
+	}
+	&:-ms-input-placeholder {
+		color: $color;
+		@content
+	}
+	&::-webkit-input-placeholder {
+		color: $color;
+		@content
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  Pseudo Element
+// -------------------------------------------------------------------------------
+
+@mixin pseudo($el, $width, $height) {
+	@if $el == "before" or $el == "after" {
+		&:#{$el} {
+			content: "";
+			position: absolute;
+			width: $width;
+			height: $height;
+			@content;
+		}
+	} @else {
+		@warn "`#{$el}` is not a valid pseudo-element.";
+	}
+}
+
+// # USAGE #
+//  .icon {
+//    @include pseudo(before, 1.56em, .125em) {
+//      background: #333;
+//      top: .25em;
+//    }
+//  }
+
+/// Function to generate long shadows (because flat is so has-been).
+/// Property-agnostic: works for both `box-shadow` and `text-shadow`.
+/// `cos` and `sin` might need to be polyfilled if Compass or any
+/// equivalent such as SassyMath is not in use.
+///
+/// @author Hugo Giraudel
+///
+/// @link https://unindented.org/articles/trigonometry-in-sass/ Pure Sass `cos` and `sin`
+///
+/// @param {Direction} $direction
+///     Shadow's direction (angle or keyword)
+/// @param {Length} $length
+///     Shadow's length
+/// @param {Color} $color
+///     Shadow's color
+/// @param {Bool | Color} $fade [false]
+///     Whether or not shadow should fade:
+///     - `false` means no fading, shadow is `$color`
+///     - `true`  means fading from `$color` to transparent
+///     - a color means fading from `$color` to `$fade`
+/// @param {Number} $shadow-count [100]
+///     Number of computed shadows
+///
+/// @return {List} - List of shadows
+///
+/// @require {function} Compass/helpers/math/cos
+///     http://compass-style.org/reference/compass/helpers/math/#cos
+/// @require {function} Compass/helpers/math/sin
+///     http://compass-style.org/reference/compass/helpers/math/#sin
+///
+/// @example scss - Usage
+/// .foo {
+///   text-shadow: long-shadow(42deg, 1em, #16a085);
+/// }
+/// .bar {
+///   box-shadow: long-shadow(to top left, 150px, hotpink, tomato);
+/// }
+@function ultimate-long-shadow($direction, $length, $color, $fade: false, $shadow-count: 100) {
+	$shadows: ();
+	$conversion-map: (
+		to top: 180deg,
+		to top right: 135deg,
+		to right top: 135deg,
+		to right: 90deg,
+		to bottom right: 45deg,
+		to right bottom: 45deg,
+		to bottom: 0deg,
+		to bottom left: 315deg,
+		to left bottom: 315deg,
+		to left: 270deg,
+		to left top: 225deg,
+		to top left: 225deg
+	);
+
+	@if map-has-key($conversion-map, $direction) {
+		$direction: map-get($conversion-map, $direction);
+	}
+
+	@for $i from 1 through $shadow-count {
+		$current-step: ($i * $length / $shadow-count);
+		$current-color: if(not $fade, $color, if(type-of($fade) == 'color',  mix($fade, $color, ($i / $shadow-count * 100)), rgba($color, 1 - $i / $shadow-count)));
+
+		$shadows: append($shadows, (sin(0deg + $direction) * $current-step) (cos(0deg + $direction) * $current-step) 0 $current-color, 'comma');
+	}
+
+	@return $shadows;
+}
+
+
+
+// Examples
+
+//.foo {
+//	text-shadow: long-shadow(
+//		// Shadow should have an angle of 42 degrees
+//		$direction: 42deg,
+//			// Shadow should be contain within a 100x100 box
+//		$length: 100px,
+//			// Shadow should start this color
+//		$color: #16a085,
+//			// To finish this color
+//		$fade: #1abc9c
+//	);
+//}
+//
+//.bar {
+//	box-shadow: long-shadow(
+//		// Shadow should go to bottom right (45deg)
+//		$direction: to left,
+//			// With a length of 15em
+//		$length: 15em,
+//			// From this color
+//		$color: #2980b9,
+//			// To this color
+//		$fade: #e67e22
+//	);
+//}
+//
+//.baz {
+//	box-shadow: long-shadow(
+//		// Shadow should have an angle of 25deg
+//		$direction: -125deg,
+//			// Spread on 120px
+//		$length: 120px,
+//			// From this color
+//		$color: #8e44ad,
+//			// To transparent
+//		$fade: true,
+//			// With only 10 shadows
+//		$shadow-count: 10
+//	)
+//}
+//
+
+
+
+
+// ------------------------------------------------------------------------------
+// !-- LONG SHADOW
+// ------------------------------------------------------------------------------
+
+@mixin longShadow(
+    $color, //background color
+    $angle:45, //angle
+    $steps:70, //how many steps (the fewer the better)
+    $darken:10, //how dark the shadow is relative to the background
+    $darken-decay:0.17, //how much the shadow fades (darken level per step)
+    $darken-blur:0, //how much the shadow blurs (px per step)
+    $occlusion-darken:13, //how dark is the ambient occlusion
+    // the darkening in the areas where ambient light can't reach, usually corners.
+    $occlusion-radius:4px, //
+    $bounce-color:white, //color of the light that gets reflected from the text into the background (preferably the text color)
+    $bounce-strength:0.4, //how strong is the light reflected
+    $bounce-radius:6px //
+  ){
+
+  $occlusion-darken:$occlusion-darken+$darken;
+  $angle:($angle*3.14)/180;
+  $x:cos($angle);
+  $y:sin($angle);
+
+  $shadow:null;
+  $shadow:append($shadow,$x*2px $y*2px $occlusion-radius darken($color,$occlusion-darken),comma);
+  $shadow:append($shadow,($x* -3)+px ($y* -3)+px $bounce-radius transparentize($bounce-color,1-$bounce-strength),comma);
+
+  @for $i from 1 through $steps{
+    $cur-darken:max(0,$darken - ($i* $darken-decay));
+    $cur-blur:($i*$darken-blur)+px;
+    $shadow:append($shadow,($i*$x)+px ($i*$y)+px $cur-blur darken($color,$cur-darken), comma);
+  }
+  box-shadow: $shadow;
+}
+
+
+// ------------------------------------------------------------------------------
+// !-- LONG TEXT SHADOW
+// ------------------------------------------------------------------------------
+
+@mixin longTextShadow (
+    $color, //background color
+    $angle:45, //angle
+    $steps:70, //how many steps (the fewer the better)
+    $darken:10, //how dark the shadow is relative to the background
+    $darken-decay:0.17, //how much the shadow fades (darken level per step)
+    $darken-blur:0, //how much the shadow blurs (px per step)
+    $occlusion-darken:13, //how dark is the ambient occlusion
+    // for people with no 3D background, ambient occlusion is the darkening in the areas where the ambient light can't reach, usually corners.
+    $occlusion-radius:4px, //
+    $bounce-color:white, //color of the light that gets reflected from the text into the background (preferably the text color)
+    $bounce-strength:0.4, //how strong is the light reflected
+    $bounce-radius:6px //
+  ){
+
+  $occlusion-darken:$occlusion-darken+$darken;
+  $angle:($angle*3.14)/180;
+  $x:cos($angle);
+  $y:sin($angle);
+
+  $shadow:null;
+  $shadow:append($shadow,$x*2px $y*2px $occlusion-radius darken($color,$occlusion-darken),comma);
+  $shadow:append($shadow,($x* -3)+px ($y* -3)+px $bounce-radius transparentize($bounce-color,1-$bounce-strength),comma);
+
+  @for $i from 1 through $steps{
+    $cur-darken:max(0,$darken - ($i* $darken-decay));
+    $cur-blur:($i*$darken-blur)+px;
+    $shadow:append($shadow,($i*$x)+px ($i*$y)+px $cur-blur darken($color,$cur-darken), comma);
+  }
+  text-shadow: $shadow;
+}
+
+
+@function basiclongshadow($color) {
+	$val: 0px 0px $color;
+	@for $i from 1 through 200 {
+		$val: #{$val}, #{$i}px #{$i}px #{$color};
+	}
+	@return $val;
+}
+
+
+
+
+
+// ------------------------------------------------------------------------------
+// !-- MATERIAL Z-DEPTHS
+// ------------------------------------------------------------------------------
+//Copyright (c) 2014 Andrea Moretti
+//https://github.com/axyz/google-material-design
+
+$_gdm-z-depths-custom: (
+	0: (
+		top-color: rgba(black, 0),
+		top-x-offset: 0,
+		top-y-offset: 0,
+		top-blur: 0,
+		bottom-color: rgba(black, 0),
+		bottom-x-offset: 0,
+		bottom-y-offset: 0,
+		bottom-blur: 0
+	),
+	1: (
+		top-color: rgba(black, .08),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 3,
+		bottom-color: rgba(black, .12),
+		bottom-x-offset: 0,
+		bottom-y-offset: 1,
+		bottom-blur: 1
+	),
+	2: (
+		top-color: rgba(black, .08),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 8,
+		bottom-color: rgba(black, .12),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 5
+	),
+	3: (
+		top-color: rgba(black, .12),
+		top-x-offset: 0,
+		top-y-offset: 5,
+		top-blur: 14,
+		bottom-color: rgba(black, .18),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 8
+	),
+	4: (
+		top-color: rgba(black, .12),
+		top-x-offset: 0,
+		top-y-offset: 7,
+		top-blur: 17,
+		bottom-color: rgba(black, .18),
+		bottom-x-offset: 0,
+		bottom-y-offset: 5,
+		bottom-blur: 11
+	),
+	5: (
+		top-color: rgba(black, .15),
+		top-x-offset: 0,
+		top-y-offset: 9,
+		top-blur: 19,
+		bottom-color: rgba(black, .2),
+		bottom-x-offset: 0,
+		bottom-y-offset: 7,
+		bottom-blur: 14
+	)
+);
+
+$_gdm-z-depths-muted: (
+	0: (
+		top-color: rgba(black, 0),
+		top-x-offset: 0,
+		top-y-offset: 0,
+		top-blur: 0,
+		bottom-color: rgba(black, 0),
+		bottom-x-offset: 0,
+		bottom-y-offset: 0,
+		bottom-blur: 0
+	),
+	1: (
+		top-color: rgba(black, .03),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 1.5,
+		bottom-color: rgba(black, .06),
+		bottom-x-offset: 0,
+		bottom-y-offset: 1,
+		bottom-blur: 1
+	),
+	2: (
+		top-color: rgba(black, .04),
+		top-x-offset: 0,
+		top-y-offset: 3,
+		top-blur: 3,
+		bottom-color: rgba(black, .06),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 3
+	),
+	3: (
+		top-color: rgba(black, .05),
+		top-x-offset: 0,
+		top-y-offset: 10,
+		top-blur: 10,
+		bottom-color: rgba(black, .06),
+		bottom-x-offset: 0,
+		bottom-y-offset: 6,
+		bottom-blur: 3
+	),
+	4: (
+		top-color: rgba(black, .06),
+		top-x-offset: 0,
+		top-y-offset: 14,
+		top-blur: 14,
+		bottom-color: rgba(black, .05),
+		bottom-x-offset: 0,
+		bottom-y-offset: 10,
+		bottom-blur: 5
+	),
+	5: (
+		top-color: rgba(black, .08),
+		top-x-offset: 0,
+		top-y-offset: 19,
+		top-blur: 19,
+		bottom-color: rgba(black, .05),
+		bottom-x-offset: 0,
+		bottom-y-offset: 15,
+		bottom-blur: 6
+	)
+);
+
+$_gdm-z-depths-standard: (
+	0: (
+		top-color: rgba(black, 0),
+		top-x-offset: 0,
+		top-y-offset: 0,
+		top-blur: 0,
+		bottom-color: rgba(black, 0),
+		bottom-x-offset: 0,
+		bottom-y-offset: 0,
+		bottom-blur: 0
+	),
+	1: (
+		top-color: rgba(black, .12),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 1.5,
+		bottom-color: rgba(black, .24),
+		bottom-x-offset: 0,
+		bottom-y-offset: 1,
+		bottom-blur: 1
+	),
+	2: (
+		top-color: rgba(black, .16),
+		top-x-offset: 0,
+		top-y-offset: 3,
+		top-blur: 3,
+		bottom-color: rgba(black, .23),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 3
+	),
+	3: (
+		top-color: rgba(black, .19),
+		top-x-offset: 0,
+		top-y-offset: 10,
+		top-blur: 10,
+		bottom-color: rgba(black, .23),
+		bottom-x-offset: 0,
+		bottom-y-offset: 6,
+		bottom-blur: 3
+	),
+	4: (
+		top-color: rgba(black, .25),
+		top-x-offset: 0,
+		top-y-offset: 14,
+		top-blur: 14,
+		bottom-color: rgba(black, .22),
+		bottom-x-offset: 0,
+		bottom-y-offset: 10,
+		bottom-blur: 5
+	),
+	5: (
+		top-color: rgba(black, .30),
+		top-x-offset: 0,
+		top-y-offset: 19,
+		top-blur: 19,
+		bottom-color: rgba(black, .22),
+		bottom-x-offset: 0,
+		bottom-y-offset: 15,
+		bottom-blur: 6
+	)
+);
+
+@mixin _gmd-box-shadow($t-top, $t-left, $t-blur, $t-color, $b-top, $b-left, $b-blur, $b-color, $extra: false) {
+	@if $extra {
+		box-shadow: $t-top+px $t-left+px $t-blur+px $t-color, $b-top+px $b-left+px $b-blur+px $b-color, $extra;
+	} @else {
+		box-shadow: $t-top+px $t-left+px $t-blur+px $t-color, $b-top+px $b-left+px $b-blur+px $b-color;
+	}
+
+}
+
+@mixin z-depth($depth, $style: custom, $direction: down, $color: false, $extra: false) {
+	@if $depth == 0 {
+		box-shadow: 0 0 0 rgba(0,0,0,0);
+	}
+	@else {
+		$settings: null;
+		$t-left: '';
+		$b-left: '';
+		@if $style == standard {
+			$settings: map-get($_gdm-z-depths-standard, $depth);
+		} @else if $style == muted {
+			$settings: map-get($_gdm-z-depths-muted, $depth);
+		} @else {
+			$settings: map-get($_gdm-z-depths-custom, $depth);
+		}
+
+		$t-top: round(map-get($settings, top-x-offset)) * -1;
+		@if $direction == up {
+			$t-left: round(map-get($settings, top-y-offset)) * -1;
+			$b-left: round(map-get($settings, bottom-y-offset)) * -1;
+		} @else {
+			$t-left: round(map-get($settings, top-y-offset));
+			$b-left: round(map-get($settings, bottom-y-offset));
+		}
+		$t-blur: round(map-get($settings, top-blur));
+		$t-color: map-get($settings, top-color);
+		$b-top: round(map-get($settings, bottom-x-offset)) * -1;
+		$b-blur: round(map-get($settings, bottom-blur));
+		$b-color: map-get($settings, bottom-color);
+
+		@if $extra {
+			@include _gmd-box-shadow($t-top, $t-left, $t-blur, $t-color, $b-top, $b-left, $b-blur, $b-color, $extra);
+		} @else {
+			@include _gmd-box-shadow($t-top, $t-left, $t-blur, $t-color, $b-top, $b-left, $b-blur, $b-color);
+		}
+	}
+}
+
+
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | SIZE
+// +==============================================================================
+
+@mixin height($height, $u: px, $denominator: 1) {
+	@if $height != null and $height != false {
+		$calc-height: $height / $denominator;
+		@if $u == vh {
+			height: #{$calc-height}vh;
+		} @else if $u != rem {
+			height: rem-calc($calc-height);
+		} @else {
+			height: px-calc($calc-height);
+		}
+	}
+}
+
+@mixin width($width, $u: px, $d: 1) {
+	@if $width != null and $width != false {
+		$calc-width: $width / $d;
+		@if $u == vw {
+			width: #{$calc-width}vw;
+		} @else if $u != rem {
+			width: rem-calc($calc-width);
+		} @else {
+			width: rem-set($calc-width);
+		}
+	}
+}
+
+@mixin square($size, $u: px, $d: 1) {
+	@include height($size, $u, $d);
+	@include width($size, $u, $d);
+}
+
+@mixin size($size) {
+	@if length($size) == 1 {
+		@if $size == auto {
+			width:  $size;
+			height: $size;
+		} @else if unitless($size) {
+			width:  $size + rem;
+			height: $size + rem;
+		} @else if not(unitless($size)) {
+			width:  $size;
+			height: $size;
+		}
+	}
+	// Width x Height
+	@if length($size) == 2 {
+		$width: nth($size, 1);
+		$height: nth($size, 2);
+
+		@if $width == auto {
+			width: $width;
+		} @else if not(unitless($width)) {
+			width: $width;
+		} @else if unitless($width) {
+			width: $width + rem;
+		}
+
+		@if $height == auto {
+			height: $height;
+		} @else if not(unitless($height)) {
+			height: $height;
+		} @else if unitless($height) {
+			height: $height + rem;
+		}
+	}
+}
+
+@mixin w100() {
+	width: 100%;
+}
+
+@mixin h100() {
+	height: 100%;
+}
+
+/// set a container to proportionally scale its immediate child element
+/// @param {number} $numerator (16)  - numerator to calculate ratio
+/// @param {number} $denominator (9) - denominator to calculate ratio
+/// @example
+///     @include proportional-container(2,1);
+
+@mixin proportional-container($numerator:16, $denominator:9, $direction:vertical) {
+	position: relative;
+	@if $direction == vertical {
+		padding-bottom: percent-calc($denominator, $numerator);
+		height:         0;
+	} @else if $direction == horizontal {
+		padding-left:   percent-calc($numerator, $denominator);
+		width:          0;
+	} @else {
+		@warn "smh, '$direction' is not a valid direction ~ via proportional-container"
+	}
+	overflow: hidden;
+	> * {
+		position: absolute;
+		display:  block;
+		top:      0;
+		left:     0;
+		width:    100%;
+		//height: 100%;
+	}
+}
+
+@mixin pc($args...) {
+	@include proportional-container($args...);
+}
+
+
+@mixin stagger-transition-delay($i, $initial-delay, $stagger-delay) {
+	@while $i > 0 {
+		&:nth-of-type(#{$i}) {
+			transition-delay: $initial-delay + $stagger-delay * $i;
+		}
+		$i: $i - 1;
+	}
+}
+
+
+@mixin stagger-animation-delay($amount) {
+	@for $i from 1 through 36 {
+		&:nth-child(#{$i}) {
+			animation-delay: #{$i * $amount}ms;
+		}
+	}
+}
+
+@mixin generate-box-utility-classes() {
+	@each $rk, $rk-item in $rect-keys {
+		$rk-id: get($rk-item, id);
+		$rk-value: get($rk-item, value);
+
+		@each $sk, $sk-item in $spacing-keys {
+			$sk-id: get($sk-item, id);
+			$sk-value: get($sk-item, value);
+
+			.m-#{$rk-id}-#{$sk-id}.m-#{$rk-id}-#{$sk-id}.m-#{$rk-id}-#{$sk-id} {
+				@include m($sk-value, $rk-value);
+			}
+
+			.p-#{$rk-id}-#{$sk-id}.p-#{$rk-id}-#{$sk-id}.p-#{$rk-id}-#{$sk-id} {
+				@include p($sk-value, $rk-value);
+			}
+		}
+	}
+}
+
+@mixin generate-color-utility-classes(
+	$text:true,
+	$backgrounds:true,
+	$borders:true) {
+	@if $text {
+		@each $key, $color in $colors-text {
+			.text-#{$key}.text-#{$key}.text-#{$key} {
+				color: $color;
+			}
+		}
+	}
+
+	@if $backgrounds {
+		@each $key, $color in $colors-bg {
+			.bg-#{$key}.bg-#{$key}.bg-#{$key} {
+				background-color: $color;
+			}
+		}
+	}
+
+	@if $borders {
+		@each $key, $color in $colors-bg {
+			.br-#{$key}.br-#{$key}.br-#{$key} {
+				border-color: $color;
+			}
+		}
+	}
+
+}
+
+@mixin generate-clamp-utility-classes() {
+	$c_i: 1;
+	@while $c_i <= 10 {
+		.clamp-#{$c_i} {
+			@include line-clamp($c_i, 1.2rem);
+		}
+		$c_i: $c_i + 1;
+	}
+}
+
+
+
+// +==============================================================================
+// | LINES
+// +==============================================================================
+
+@mixin generate-line-utility-classes($line-size:1px) {
+	.line-top,
+	.line-bottom,
+	.line-left,
+	.line-right,
+	.line-vertical,
+	.line-horizontal {
+		&:after,
+		&:before {
+			content: '';
+			position: absolute;
+			z-index: 1;
+		}
+	}
+	.line-top,
+	.line-bottom {
+		&:after {
+			width: 100%;
+			height: $line-size;
+			left: 0;
+		}
+	}
+	.line-left,
+	.line-right {
+		&:after {
+			height: 100%;
+			width: $line-size;
+			top: 0;
+		}
+	}
+	.line-left {
+		&:after {
+			left: 0;
+		}
+	}
+	.line-right {
+		&:after {
+			right: 0;
+		}
+	}
+	.line-top {
+		&:after {
+			top: 0;
+		}
+	}
+	.line-bottom {
+		&:after {
+			bottom: 0;
+		}
+	}
+	.line-vertical {
+		&:after,
+		&:before {
+			height: $line-size;
+			left: 0;
+			width: 100%;
+		}
+		&:before {
+			top: 0;
+		}
+		&:after {
+			bottom: 0;
+		}
+	}
+	.line-horizontal {
+		&:after,
+		&:before {
+			height: 100%;
+			top: 0;
+			width: $line-size;
+		}
+		&:before {
+			left: 0;
+		}
+		&:after {
+			right: 0;
+		}
+	}
+}
+

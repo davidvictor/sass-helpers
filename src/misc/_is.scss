@@ -1,0 +1,63 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                _ __
+//   __  ______  (_) /______
+//  / / / / __ \/ / __/ ___/
+// / /_/ / / / / / /_(__  )
+// \__,_/_/ /_/_/\__/____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// |	Unit Helpers
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @private
+/// @group Helpers
+/// @author David Victor
+////
+
+/// Input measure is in pixels
+//  +==============================================================================-
+/// @private
+/// @param {String} $p - property
+/// @param {Number} $v - values
+/// @param {String} $i - important
+/// @param {String} $m - modifier
+/// @require rem-calc, px-calc, rem-set, px-set
+
+@mixin _is-px($p,$v,$i:null,$m:null) {
+	@if $i != null {
+		$i: !important;
+	}
+	@if $v == auto {
+		#{$p}#{$m}: auto;
+	}
+	@else if $v == 0 {
+		#{$p}#{$m}: $v;
+	}
+	@else {
+		#{$p}#{$m}: rem-calc($v) + #{$i};
+	}
+}
+
+/// Input measure is in rem
+//  +==============================================================================-
+/// @private
+/// @param {String} $p - property
+/// @param {Number} $v - values
+/// @param {String} $i - important
+/// @param {String} $m - modifier
+/// @require rem-calc, px-calc, rem-set, px-set
+
+@mixin _is-rem($p,$v,$i:null,$m:null) {
+	@if $i != null {
+		$i: !important;
+	}
+	@if $v == auto {
+		#{$p}#{$m}: auto;
+	}
+	@else if $v == 0 {
+		#{$p}#{$m}: $v;
+	}
+	@else {
+		#{$p}#{$m}: rem-set($v) + #{$i};
+	}
+}

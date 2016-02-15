@@ -1,0 +1,18 @@
+@mixin line-color($color1,$color2) {
+	.line-top,
+	.line-bottom,
+	.line-vertical {
+		&:before,
+		&:after {
+			background: linear-gradient(to bottom, $color1 0%, $color1 50%, $color2 51%, $color2 100%);
+		}
+	}
+	.line-left,
+	.line-right,
+	.line-horizontal {
+		&:before,
+		&:after {
+			background: linear-gradient(to left, $color1 0%, $color1 50%, $color2 51%, $color2 100%);
+		}
+	}
+}

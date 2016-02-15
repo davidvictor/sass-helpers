@@ -1,0 +1,31 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//
+//   ____ _____  ____  _________  _  __
+//  / __ `/ __ \/ __ \/ ___/ __ \| |/_/
+// / /_/ / /_/ / /_/ / /  / /_/ />  <
+// \__,_/ .___/ .___/_/   \____/_/|_|
+//     /_/   /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Check whether 2 floats are equal or not
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+///
+/// Because you cannot expect a float to be precise.
+/// If you expect 0.12 to equal 0.10 + 0.02, you are wrong.
+/// +===============================================================================-
+///
+/// @param [number] $a: first number
+/// @param [number] $b: second number
+/// @param [number] $tolerance: tolerance (epsilon)
+/// @return [bool]
+
+@function approximately-equal($a, $b, $tolerance: 0.0000001) {
+	@return abs($a - $b) <= $tolerance;
+}
+
+/// @alias
+@function a-equal($a, $b, $tolerance: 0.0000001) {
+	@return approximately-equal($a, $b, $tolerance);
+}
+
+

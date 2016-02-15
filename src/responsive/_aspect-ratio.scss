@@ -1,0 +1,37 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                               __                   __  _
+//   ____ __________  ___  _____/ /_      _________ _/ /_(_)___
+//  / __ `/ ___/ __ \/ _ \/ ___/ __/_____/ ___/ __ `/ __/ / __ \
+// / /_/ (__  ) /_/ /  __/ /__/ /_/_____/ /  / /_/ / /_/ / /_/ /
+// \__,_/____/ .___/\___/\___/\__/     /_/   \__,_/\__/_/\____/
+//          /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Aspect Ratio Media Query
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Responsive
+/// @author David Victor
+////
+/// Create media query based on aspect ratio
+//  +==============================================================================-
+/// @param {Number} $numerator - Numerator
+/// @param {Number} $denominator - Denominator
+/// @param {Bool} $min-max - Min or Max
+///
+@mixin aspect-ratio($numerator, $denominator, $min-max:false) {
+	$media-query: '';
+	@if $min-max {
+		$media-query: "all and (#{$min-max}-aspect-ratio: #{$numerator}/#{$denominator})";
+	} @else {
+		$media-query: "all and (aspect-ratio: #{$numerator}/#{$denominator})";
+	}
+	@media #{$media-query} {
+		@content;
+	}
+}
+
+/// @alias aspect-ratio
+@mixin ar($args...) {
+	@include aspect-ratio($args...);
+}

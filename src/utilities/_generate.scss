@@ -1,0 +1,146 @@
+@mixin generate-box-utility-classes() {
+	@each $rk, $rk-item in $rect-keys {
+		$rk-id: get($rk-item, id);
+		$rk-value: get($rk-item, value);
+
+		@each $sk, $sk-item in $spacing-keys {
+			$sk-id: get($sk-item, id);
+			$sk-value: get($sk-item, value);
+
+			.m-#{$rk-id}-#{$sk-id}.m-#{$rk-id}-#{$sk-id}.m-#{$rk-id}-#{$sk-id} {
+				@include m($sk-value, $rk-value);
+			}
+
+			.p-#{$rk-id}-#{$sk-id}.p-#{$rk-id}-#{$sk-id}.p-#{$rk-id}-#{$sk-id} {
+				@include p($sk-value, $rk-value);
+			}
+		}
+	}
+}
+
+@mixin generate-color-utility-classes(
+	$text:true,
+	$backgrounds:true,
+	$borders:true) {
+	@if $text {
+		@each $key, $color in $colors-text {
+			.text-#{$key}.text-#{$key}.text-#{$key} {
+				color: $color;
+			}
+		}
+	}
+
+	@if $backgrounds {
+		@each $key, $color in $colors-bg {
+			.bg-#{$key}.bg-#{$key}.bg-#{$key} {
+				background-color: $color;
+			}
+		}
+	}
+
+	@if $borders {
+		@each $key, $color in $colors-bg {
+			.br-#{$key}.br-#{$key}.br-#{$key} {
+				border-color: $color;
+			}
+		}
+	}
+
+}
+
+@mixin generate-clamp-utility-classes() {
+	$c_i: 1;
+	@while $c_i <= 10 {
+		.clamp-#{$c_i} {
+			@include line-clamp($c_i, 1.2rem);
+		}
+		$c_i: $c_i + 1;
+	}
+}
+
+
+
+// +==============================================================================
+// | LINES
+// +==============================================================================
+
+@mixin generate-line-utility-classes($line-size:1px) {
+	.line-top,
+	.line-bottom,
+	.line-left,
+	.line-right,
+	.line-vertical,
+	.line-horizontal {
+		&:after,
+		&:before {
+			content: '';
+			position: absolute;
+			z-index: 1;
+		}
+	}
+	.line-top,
+	.line-bottom {
+		&:after {
+			width: 100%;
+			height: $line-size;
+			left: 0;
+		}
+	}
+	.line-left,
+	.line-right {
+		&:after {
+			height: 100%;
+			width: $line-size;
+			top: 0;
+		}
+	}
+	.line-left {
+		&:after {
+			left: 0;
+		}
+	}
+	.line-right {
+		&:after {
+			right: 0;
+		}
+	}
+	.line-top {
+		&:after {
+			top: 0;
+		}
+	}
+	.line-bottom {
+		&:after {
+			bottom: 0;
+		}
+	}
+	.line-vertical {
+		&:after,
+		&:before {
+			height: $line-size;
+			left: 0;
+			width: 100%;
+		}
+		&:before {
+			top: 0;
+		}
+		&:after {
+			bottom: 0;
+		}
+	}
+	.line-horizontal {
+		&:after,
+		&:before {
+			height: 100%;
+			top: 0;
+			width: $line-size;
+		}
+		&:before {
+			left: 0;
+		}
+		&:after {
+			right: 0;
+		}
+	}
+}
+

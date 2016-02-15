@@ -1,0 +1,41 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//         _           __
+//  ____  (_)___  ____/ /__  _  __
+// /_  / / / __ \/ __  / _ \| |/_/
+//  / /_/ / / / / /_/ /  __/>  <
+// /___/_/_/ /_/\__,_/\___/_/|_|
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Managing complex stacking order
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Functions
+/// @author David Victor
+////
+
+$z: (
+			'page':(
+				'header':120,
+				'base':100,
+				'footer':110
+			)
+		) !default;
+
+/// @param {ArgList} $layers - list of layers, getting deeper
+/// @throw
+/// @example scss - Get nested z-index
+///  z-index: z("modal", "base");
+
+@function z($layers...) {
+	@if not list-get($z, $layers...) {
+		@warn "No layer found for `#{inspect($layers...)}` in $z map. Property omitted.";
+	}
+	@return list-get($z, $layers...);
+}
+
+/// @param {String} $l - Layer
+/// @param {String} $e - Element
+
+@mixin z($l,$e,$p){
+	z-index: index($l,$e) + $p;
+};

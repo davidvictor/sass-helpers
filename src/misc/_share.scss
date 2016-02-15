@@ -1,0 +1,31 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//          __
+//    _____/ /_  ____ _________
+//   / ___/ __ \/ __ `/ ___/ _ \
+//  (__  ) / / / /_/ / /  /  __/
+// /____/_/ /_/\__,_/_/   \___/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Share a single value across multiple properties
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+/// @author David Victor
+////
+/// Share a single value across multiple properties
+//  +==============================================================================-
+/// @param {argList} $props - Value being shared is last in list
+/// @example scss - Value shared with padding
+///  @include share(padding-top, padding-bottom, 23px);
+/// @throw WARN ~ smh, you must share a value with a property ~ share
+
+@mixin share($props...) {
+	@if length($props) > 1 {
+		@for $i from 1 to length($props) {
+			#{nth($props, $i)}: nth($props, -1);
+		}
+	} @else {
+		@include WARN("smh, you must share a value with a property ~ share");
+	}
+}
+

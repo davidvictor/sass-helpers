@@ -1,0 +1,37 @@
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | ASSERT
+// +==============================================================================
+
+/// Throw $message if $condition is not meant
+/// @param {*} $condition - Condition
+/// @message {String} $message - Error message
+@mixin assert($condition, $message) {
+	@if not $condition {
+		@error #{$message};
+	}
+}
+
+/// Multiple asserts at once
+/// @param {Map} $asserts - Keys are messages, values are conditions
+/// @require {mixin} assert
+@mixin assert-group($asserts) {
+	@each $message, $condition in $asserts {
+		@include assert($condition, $message);
+	}
+}
+
+//@mixin size($width, $height: $width) {
+//	@include assert-group((
+//		'$width should be a number.': type-of($width) == 'number',
+//		'$height should be a number.': type-of($height) == 'number'
+//	));
+//
+//	width: $width;
+//	height: $height;
+//}
+

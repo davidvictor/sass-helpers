@@ -1,0 +1,243 @@
+
+// ------------------------------------------------------------------------------
+// !-- MATERIAL Z-DEPTHS
+// ------------------------------------------------------------------------------
+//Copyright (c) 2014 Andrea Moretti
+//https://github.com/axyz/google-material-design
+
+$_gdm-z-depths-custom: (
+	0: (
+		top-color: rgba(black, 0),
+		top-x-offset: 0,
+		top-y-offset: 0,
+		top-blur: 0,
+		bottom-color: rgba(black, 0),
+		bottom-x-offset: 0,
+		bottom-y-offset: 0,
+		bottom-blur: 0
+	),
+	1: (
+		top-color: rgba(black, .08),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 3,
+		bottom-color: rgba(black, .12),
+		bottom-x-offset: 0,
+		bottom-y-offset: 1,
+		bottom-blur: 1
+	),
+	2: (
+		top-color: rgba(black, .08),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 8,
+		bottom-color: rgba(black, .12),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 5
+	),
+	3: (
+		top-color: rgba(black, .12),
+		top-x-offset: 0,
+		top-y-offset: 5,
+		top-blur: 14,
+		bottom-color: rgba(black, .18),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 8
+	),
+	4: (
+		top-color: rgba(black, .12),
+		top-x-offset: 0,
+		top-y-offset: 7,
+		top-blur: 17,
+		bottom-color: rgba(black, .18),
+		bottom-x-offset: 0,
+		bottom-y-offset: 5,
+		bottom-blur: 11
+	),
+	5: (
+		top-color: rgba(black, .15),
+		top-x-offset: 0,
+		top-y-offset: 9,
+		top-blur: 19,
+		bottom-color: rgba(black, .2),
+		bottom-x-offset: 0,
+		bottom-y-offset: 7,
+		bottom-blur: 14
+	)
+);
+
+$_gdm-z-depths-muted: (
+	0: (
+		top-color: rgba(black, 0),
+		top-x-offset: 0,
+		top-y-offset: 0,
+		top-blur: 0,
+		bottom-color: rgba(black, 0),
+		bottom-x-offset: 0,
+		bottom-y-offset: 0,
+		bottom-blur: 0
+	),
+	1: (
+		top-color: rgba(black, .03),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 1.5,
+		bottom-color: rgba(black, .06),
+		bottom-x-offset: 0,
+		bottom-y-offset: 1,
+		bottom-blur: 1
+	),
+	2: (
+		top-color: rgba(black, .04),
+		top-x-offset: 0,
+		top-y-offset: 3,
+		top-blur: 3,
+		bottom-color: rgba(black, .06),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 3
+	),
+	3: (
+		top-color: rgba(black, .05),
+		top-x-offset: 0,
+		top-y-offset: 10,
+		top-blur: 10,
+		bottom-color: rgba(black, .06),
+		bottom-x-offset: 0,
+		bottom-y-offset: 6,
+		bottom-blur: 3
+	),
+	4: (
+		top-color: rgba(black, .06),
+		top-x-offset: 0,
+		top-y-offset: 14,
+		top-blur: 14,
+		bottom-color: rgba(black, .05),
+		bottom-x-offset: 0,
+		bottom-y-offset: 10,
+		bottom-blur: 5
+	),
+	5: (
+		top-color: rgba(black, .08),
+		top-x-offset: 0,
+		top-y-offset: 19,
+		top-blur: 19,
+		bottom-color: rgba(black, .05),
+		bottom-x-offset: 0,
+		bottom-y-offset: 15,
+		bottom-blur: 6
+	)
+);
+
+$_gdm-z-depths-standard: (
+	0: (
+		top-color: rgba(black, 0),
+		top-x-offset: 0,
+		top-y-offset: 0,
+		top-blur: 0,
+		bottom-color: rgba(black, 0),
+		bottom-x-offset: 0,
+		bottom-y-offset: 0,
+		bottom-blur: 0
+	),
+	1: (
+		top-color: rgba(black, .12),
+		top-x-offset: 0,
+		top-y-offset: 1,
+		top-blur: 1.5,
+		bottom-color: rgba(black, .24),
+		bottom-x-offset: 0,
+		bottom-y-offset: 1,
+		bottom-blur: 1
+	),
+	2: (
+		top-color: rgba(black, .16),
+		top-x-offset: 0,
+		top-y-offset: 3,
+		top-blur: 3,
+		bottom-color: rgba(black, .23),
+		bottom-x-offset: 0,
+		bottom-y-offset: 3,
+		bottom-blur: 3
+	),
+	3: (
+		top-color: rgba(black, .19),
+		top-x-offset: 0,
+		top-y-offset: 10,
+		top-blur: 10,
+		bottom-color: rgba(black, .23),
+		bottom-x-offset: 0,
+		bottom-y-offset: 6,
+		bottom-blur: 3
+	),
+	4: (
+		top-color: rgba(black, .25),
+		top-x-offset: 0,
+		top-y-offset: 14,
+		top-blur: 14,
+		bottom-color: rgba(black, .22),
+		bottom-x-offset: 0,
+		bottom-y-offset: 10,
+		bottom-blur: 5
+	),
+	5: (
+		top-color: rgba(black, .30),
+		top-x-offset: 0,
+		top-y-offset: 19,
+		top-blur: 19,
+		bottom-color: rgba(black, .22),
+		bottom-x-offset: 0,
+		bottom-y-offset: 15,
+		bottom-blur: 6
+	)
+);
+
+@mixin _gmd-box-shadow($t-top, $t-left, $t-blur, $t-color, $b-top, $b-left, $b-blur, $b-color, $extra: false) {
+	@if $extra {
+		box-shadow: $t-top+px $t-left+px $t-blur+px $t-color, $b-top+px $b-left+px $b-blur+px $b-color, $extra;
+	} @else {
+		box-shadow: $t-top+px $t-left+px $t-blur+px $t-color, $b-top+px $b-left+px $b-blur+px $b-color;
+	}
+
+}
+
+@mixin z-depth($depth, $style: custom, $direction: down, $color: false, $extra: false) {
+	@if $depth == 0 {
+		box-shadow: 0 0 0 rgba(0,0,0,0);
+	}
+	@else {
+		$settings: null;
+		$t-left: '';
+		$b-left: '';
+		@if $style == standard {
+			$settings: map-get($_gdm-z-depths-standard, $depth);
+		} @else if $style == muted {
+			$settings: map-get($_gdm-z-depths-muted, $depth);
+		} @else {
+			$settings: map-get($_gdm-z-depths-custom, $depth);
+		}
+
+		$t-top: round(map-get($settings, top-x-offset)) * -1;
+		@if $direction == up {
+			$t-left: round(map-get($settings, top-y-offset)) * -1;
+			$b-left: round(map-get($settings, bottom-y-offset)) * -1;
+		} @else {
+			$t-left: round(map-get($settings, top-y-offset));
+			$b-left: round(map-get($settings, bottom-y-offset));
+		}
+		$t-blur: round(map-get($settings, top-blur));
+		$t-color: map-get($settings, top-color);
+		$b-top: round(map-get($settings, bottom-x-offset)) * -1;
+		$b-blur: round(map-get($settings, bottom-blur));
+		$b-color: map-get($settings, bottom-color);
+
+		@if $extra {
+			@include _gmd-box-shadow($t-top, $t-left, $t-blur, $t-color, $b-top, $b-left, $b-blur, $b-color, $extra);
+		} @else {
+			@include _gmd-box-shadow($t-top, $t-left, $t-blur, $t-color, $b-top, $b-left, $b-blur, $b-color);
+		}
+	}
+}
+

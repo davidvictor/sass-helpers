@@ -1,0 +1,44 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                                    __
+//    _________  ________  ____ _____/ /
+//   / ___/ __ \/ ___/ _ \/ __ `/ __  /
+//  (__  ) /_/ / /  /  __/ /_/ / /_/ /
+// /____/ .___/_/   \___/\__,_/\__,_/
+//     /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Spread values across screen width
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Responsive
+/// @author David Victor
+////
+
+/// spreads a property value from min to max across media queries
+/// @param {} $property - CSS property to set
+/// @param {String} $property-min - min value of the property
+/// @param {String} $property-max - max value of the property
+/// @param {String} $dimension - media query dimension - min-width, min-height, max-width, max-height
+/// @param {String} $dimension-min - first media query of the chosen dimension
+/// @param {String} $dimension-max - final media query of the chosen dimension
+/// @param {Boolean} $default-value - true/false (defaults to true). Should a default value (min for min-width/height, max for max-width/height) be included outside the query?
+/// @param {String} $precision - how many pixels each media query should cover
+/// @param {String} $ease - easing function to use when calculating value helpful for fine-tuning some widths in the mid-range
+/// @require strip-unit
+/// @require ease
+@mixin spread($property, $property-min, $property-max, $dimension: min-width, $dimension-min: 320px, $dimension-max: 1920, $default-value: true, $precision: 50px, $ease: linear) {
+	$total-iterations: abs(strip-unit(ceil(($dimension-max - $dimension-min) / $precision))) - 1;
+	$max-dimension: $dimension == max-width or $dimension == max-height;
+
+	@if $default-value {
+		#{$property}: if($max-dimension, $property-max, $property-min);
+	}
+
+	@for $iteration from 0 through $total-iterations {
+		$iteration: if($max-dimension, $total-iterations - $iteration, $iteration);
+
+		@media (#{$dimension}: $dimension-min + $iteration * $precision) {
+			#{$property}: ease($iteration, $property-min, $property-max - $property-min, $total-iterations, $ease);
+		}
+	}
+}

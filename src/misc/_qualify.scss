@@ -1,0 +1,40 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                      ___ ____
+//   ____ ___  ______ _/ (_) __/_  __
+//  / __ `/ / / / __ `/ / / /_/ / / /
+// / /_/ / /_/ / /_/ / / / __/ /_/ /
+// \__, /\__,_/\__,_/_/_/_/  \__, /
+//   /_/                    /____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Qualify a class
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+///
+/// Since the current way to qualify a class from within its ruleset is quite
+/// ugly, here is a mixin providing a friendly API to do so.
+// +===============================================================================-
+/// @author Hugo Giraudel
+/// @param {String} $element-selector - Element selector
+///
+/// @example scss .button {
+///  	border: none;
+///  	@include qualify(button) {
+///  		-webkit-appearance: none;
+///  	}
+///  	@include when-is(a) {
+///  		text-decoration: none;
+///  	}
+///  }
+
+@mixin qualify($element-selector) {
+	@at-root #{$element-selector + #{&}} {
+		@content;
+	}
+}
+
+/// @alias qualify
+@mixin when-is($args...) {
+	@include qualify($args...) { @content; }
+}
+
+

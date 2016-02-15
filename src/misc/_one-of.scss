@@ -1,0 +1,32 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                              ____
+//   ____  ____  ___     ____  / __/  ____
+//  / __ \/ __ \/ _ \   / __ \/ /_   / __ \
+// / /_/ / / / /  __/  / /_/ / __/  / / / /
+// \____/_/ /_/\___/   \____/_/    /_/ /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | One of n siblings
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+/// @author David Victor
+////
+
+/// @param {Arglist} $countArg - Pass an argument
+/// @example scss - How to use
+///  @include one-of-n-siblings( 5 ) {
+//			background-color: #FCC;
+//		}
+//		@include one-of-n-siblings( "n + 6" ) {
+//			background-color: #CFC;
+//		}
+//		@include one-of-n-siblings( "-n + 4" ) {
+//			background-color: #CCF;
+//		}
+@mixin one-of-n-siblings( $countArg... ){
+	&:nth-last-child( #{$countArg} ):first-child,
+	&:nth-last-child( #{$countArg} ):first-child ~ & {
+		@content;
+	}
+}

@@ -1,0 +1,217 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                                        __
+//   ____  ____     ___ _   _____  ____  / /_
+//  / __ \/ __ \   / _ \ | / / _ \/ __ \/ __/
+// / /_/ / / / /  /  __/ |/ /  __/ / / / /_
+// \____/_/ /_/   \___/|___/\___/_/ /_/\__/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// |	Change identical property values across all events
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Helpers
+////
+
+/// Bind all events, including self state if `$self` is true.
+/// @author Harry Roberts
+/// @link https://github.com/csswizardry/csswizardry.github.com/blob/master/css/_tools.mixins.scss#L13 CSSWizardry
+/// @param {Bool} $self - Include self state
+/// @output `:hover`, `:active` and `:focus`
+
+@mixin on-event($self: false) {
+	// If $self is truthy, include self state
+	@if $self {
+		&,
+		&:hover,
+		&:active,
+		&:focus { @content }
+	}
+
+	@else {
+		&:hover,
+		&:active,
+		&:focus { @content }
+	}
+}
+
+/// Define a context for the current selector
+/// @author Hugo Giraudel
+/// @param {String} $context - Context
+/// @output `#{$context} & { ... }`
+@mixin when-inside($context) {
+	#{$context} & {
+		@content;
+	}
+}
+// -------------------------------------------------------------------------------
+//  HOVER
+// -------------------------------------------------------------------------------
+
+@mixin hover() {
+	.desktop &,
+	.no-js & {
+		&:hover,
+		&.hover {
+			@content;
+		}
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  HOVER + ACTIVE
+// -------------------------------------------------------------------------------
+
+@mixin hover-active() {
+	.desktop &,
+	.no-js & {
+		&:hover,
+		&.hover {
+			@content;
+		}
+	}
+	&:active,
+	&.active {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  HOVER + ACTIVE + FOCUS
+// -------------------------------------------------------------------------------
+
+@mixin hover-active-focus() {
+	.desktop &,
+	.no-js & {
+		&:hover,
+		&.hover {
+			@content;
+		}
+	}
+	&:active,
+	&:focus {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  EVENTS
+// -------------------------------------------------------------------------------
+
+@mixin all-events() {
+	&:hover,
+	&.hover {
+		.desktop &,
+		.no-js & {
+			@content;
+		}
+	}
+	&:active,
+	&.active,
+	&:visited,
+	&:focus,
+	&:checked {
+		@content;
+	}
+}
+
+// -------------------------------------------------------------------------------
+//  DISABLED
+// -------------------------------------------------------------------------------
+
+@mixin disabled() {
+	&:disabled,
+	&.disabled,
+	&[disabled] {
+		@content;
+	}
+}
+
+// ------------------------------------------------------------------------------
+// !-- GRABBING
+// ------------------------------------------------------------------------------
+
+@mixin grabbing() {
+	&:active {
+		cursor: -webkit-grabbing !important;
+		cursor: -moz-grabbing !important;
+		cursor: grabbing !important;
+	}
+}
+
+// ------------------------------------------------------------------------------
+// !-- GRAB
+// ------------------------------------------------------------------------------
+
+@mixin grab() {
+	cursor: move;
+	cursor: -webkit-grab;
+	cursor: -moz-grab;
+	cursor: grab;
+	@include grabbing();
+}
+
+// ------------------------------------------------------------------------------
+// !-- POINTER
+// ------------------------------------------------------------------------------
+
+@mixin pointer() {
+	cursor: pointer;
+	cursor: hand;
+}
+
+// ------------------------------------------------------------------------------
+// !-- No Pointer
+// ------------------------------------------------------------------------------
+
+@mixin no-pointer() {
+	pointer-events: none;
+}
+
+// ------------------------------------------------------------------------------
+// !-- ACTIVE CLICK
+// ------------------------------------------------------------------------------
+//$active-click-transform: scale(0.96) !default;;
+//$hover-grow-transform: scale(1.04) !default;
+//
+//@mixin active-click($grow:false) {
+//	cursor: pointer;
+//	transition: all $transition-speed $transition-easing;
+//	&:active {
+//		transform: $active-click-transform;
+//	}
+//	.mobile &,
+//	.tablet & {
+//		&:focus {
+//			transform: $active-click-transform;
+//		}
+//	}
+//	@if $grow {
+//		@include hover() {
+//			transform: $hover-grow-transform;
+//			&:active {
+//				transform: $active-click-transform;
+//			}
+//		}
+//		.mobile &,
+//		.tablet & {
+//			&:focus {
+//				transform: $active-click-transform;
+//			}
+//		}
+//	}
+//}
+
+// ------------------------------------------------------------------------------
+// !-- SHADOW CLICK
+// ------------------------------------------------------------------------------
+
+//@mixin shadow-click() {
+//	cursor: pointer;
+//	transition: all $transition-speed $transition-easing;
+//	@include z-depth(1);
+//	&:active {
+//		@include z-depth(3);
+//	}
+//}
+
+

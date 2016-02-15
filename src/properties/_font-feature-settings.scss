@@ -1,0 +1,209 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//     ____            __     ____           __
+//    / __/___  ____  / /_   / __/__  ____ _/ /___  __________  _____
+//   / /_/ __ \/ __ \/ __/  / /_/ _ \/ __ `/ __/ / / / ___/ _ \/ ___/
+//  / __/ /_/ / / / / /_   / __/  __/ /_/ / /_/ /_/ / /  /  __(__  )
+// /_/  \____/_/ /_/\__/  /_/  \___/\__,_/\__/\__,_/_/   \___/____/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Font feature settings
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Properties
+/// @author David Victor
+////
+
+@mixin font-feature-settings($feature-list: false)
+{
+	// Only proceed if a list of arguments was passed
+	@if $feature-list
+	{
+		// Create an empty list for the standard syntax
+		$standard: ();
+
+		// Create an empty list for the old Mozilla syntax
+		$old-moz: ();
+
+		// Add each listed feature to the standard and old Mozilla values
+		@each $feature in $feature-list
+		{
+			$standard: append( $standard, '#{$feature}' 1, comma );
+			$old-moz: append( $old-moz, '#{$feature}=1', comma );
+		}
+
+		// Finally, print out the prefixed and non-prefixed code for all of the listed features
+		-moz-font-feature-settings: $old-moz;
+		-moz-font-feature-settings: $standard;
+		-ms-font-feature-settings: $standard;
+		-o-font-feature-settings: $standard;
+		-webkit-font-feature-settings: $standard;
+		font-feature-settings: $standard;
+	}
+}
+
+//@mixin font-feature-settings($feature-list: null, $extend: null) {
+//	$extend: if($extend != null, $extend, roar-get('ligatures'));
+//	$feature-list: if($feature-list != null, $feature-list, roar-get('ligatures'));
+//
+//	@if $feature-list {
+//		// Create an empty list for the standard syntax
+//		$standard: ();
+//		// Create an empty list for the old Mozilla syntax
+//		$old-moz: ();
+//		// Add each listed feature to the standard and old Mozilla values
+//		@each $feature in $feature-list {
+//			$standard: append($standard, '#{$feature}' 1, comma);
+//			$old-moz: append($old-moz, '#{$feature}=1', comma);
+//		}
+//		@if $extend {
+//			@include dynamic-extend('font feature settings') {
+//				@include font-feature-settings();
+//			}
+//		} @else {
+//			-moz-font-feature-settings: $old-moz;
+//			-moz-font-feature-settings: $standard;
+//			-ms-font-feature-settings: $standard;
+//			-o-font-feature-settings: $standard;
+//			-webkit-font-feature-settings: $standard;
+//			font-feature-settings: $standard;
+//		}
+//	}
+//}
+
+
+// AVAILABLE TAGS
+
+//    aalt - Access All Alternates
+//    abvf - Above-base Forms
+//    abvm - Above-base Mark Positioning
+//    abvs - Above-base Substitutions
+//    afrc - Alternative Fractions
+//    akhn - Akhands
+//    blwf - Below-base Forms
+//    blwm - Below-base Mark Positioning
+//    blws - Below-base Substitutions
+//    calt - Contextual Alternates
+//    case - Case-Sensitive Forms
+//    ccmp - Glyph Composition / Decomposition
+//    cfar - Conjunct Form After Ro
+//    cjct - Conjunct Forms
+//    clig - Contextual Ligatures
+//    cpct - Centered CJK Punctuation
+//    cpsp - Capital Spacing
+//    cswh - Contextual Swash
+//    curs - Cursive Positioning
+//    cvNN - Character Variants (NN is a two digit number)
+//    c2pc - Petite Capitals From Capitals
+//    c2sc - Small Capitals From Capitals
+//    dist - Distances
+//    dlig - Discretionary Ligatures
+//    dnom - Denominators
+//    expt - Expert Forms
+//    falt - Final Glyph on Line Alternates
+//    fin2 - Terminal Forms #2
+//    fin3 - Terminal Forms #3
+//    fina - Terminal Forms
+//    frac - Fractions
+//    fwid - Full Widths
+//    half - Half Forms
+//    haln - Halant Forms
+//    halt - Alternate Half Widths
+//    hist - Historical Forms
+//    hkna - Horizontal Kana Alternates
+//    hlig - Historical Ligatures
+//    hngl - Hangul
+//    hojo - Hojo Kanji Forms (JIS X 0212-1990 Kanji Forms)
+//    hwid - Half Widths
+//    init - Initial Forms
+//    isol - Isolated Forms
+//    ital - Italics
+//    jalt - Justification Alternates
+//    jp78 - JIS78 Forms
+//    jp83 - JIS83 Forms
+//    jp90 - JIS90 Forms
+//    jp04 - JIS2004 Forms
+//    kern - Kerning
+//    lfbd - Left Bounds
+//    liga - Standard Ligatures
+//    ljmo - Leading Jamo Forms
+//    lnum - Lining Figures
+//    locl - Localized Forms
+//    ltra - Left-to-right alternates
+//    ltrm - Left-to-right mirrored forms
+//    mark - Mark Positioning
+//    med2 - Medial Forms #2
+//    medi - Medial Forms
+//    mgrk - Mathematical Greek
+//    mkmk - Mark to Mark Positioning
+//    mset - Mark Positioning via Substitution
+//    nalt - Alternate Annotation Forms
+//    nlck - NLC
+//    nukt - Nukta Forms
+//    numr - Numerators
+//    onum - Oldstyle Figures
+//    opbd - Optical Bounds
+//    ordn - Ordinals
+//    ornm - Ornaments
+//    palt - Proportional Alternate Widths
+//    pcap - Petite Capitals
+//    pkna - Proportional Kana
+//    pnum - Proportional Figures
+//    pref - Pre-Base Forms
+//    pres - Pre-base Substitutions
+//    pstf - Post-base Forms
+//    psts - Post-base Substitutions
+//    pwid - Proportional Widths
+//    qwid - Quarter Widths
+//    rand - Randomize
+//    rkrf - Rakar Forms
+//    rlig - Required Ligatures
+//    rphf - Reph Forms
+//    rtbd - Right Bounds
+//    rtla - Right-to-left alternates
+//    rtlm - Right-to-left mirrored forms
+//    ruby - Ruby Notation Forms
+//    salt - Stylistic Alternates
+//    sinf - Scientific Inferiors
+//    size - Optical size
+//    smcp - Small Capitals
+//    smpl - Simplified Forms
+//    ss01 - Stylistic Set 1
+//    ss02 - Stylistic Set 2
+//    ss03 - Stylistic Set 3
+//    ss04 - Stylistic Set 4
+//    ss05 - Stylistic Set 5
+//    ss06 - Stylistic Set 6
+//    ss07 - Stylistic Set 7
+//    ss08 - Stylistic Set 8
+//    ss09 - Stylistic Set 9
+//    ss10 - Stylistic Set 10
+//    ss11 - Stylistic Set 11
+//    ss12 - Stylistic Set 12
+//    ss13 - Stylistic Set 13
+//    ss14 - Stylistic Set 14
+//    ss15 - Stylistic Set 15
+//    ss16 - Stylistic Set 16
+//    ss17 - Stylistic Set 17
+//    ss18 - Stylistic Set 18
+//    ss19 - Stylistic Set 19
+//    ss20 - Stylistic Set 20
+//    subs - Subscript
+//    sups - Superscript
+//    swsh - Swash
+//    titl - Titling
+//    tjmo - Trailing Jamo Forms
+//    tnam - Traditional Name Forms
+//    tnum - Tabular Figures
+//    trad - Traditional Forms
+//    twid - Third Widths
+//    unic - Unicase
+//    valt - Alternate Vertical Metrics
+//    vatu - Vattu Variants
+//    vert - Vertical Writing
+//    vhal - Alternate Vertical Half Metrics
+//    vjmo - Vowel Jamo Forms
+//    vkna - Vertical Kana Alternates
+//    vkrn - Vertical Kerning
+//    vpal - Proportional Alternate Vertical Metrics
+//    vrt2 - Vertical Alternates and Rotation
+//    zero - Slashed Zero

@@ -1,0 +1,201 @@
+/// Function to generate long shadows (because flat is so has-been).
+/// Property-agnostic: works for both `box-shadow` and `text-shadow`.
+/// `cos` and `sin` might need to be polyfilled if Compass or any
+/// equivalent such as SassyMath is not in use.
+///
+/// @author Hugo Giraudel
+///
+/// @link https://unindented.org/articles/trigonometry-in-sass/ Pure Sass `cos` and `sin`
+///
+/// @param {Direction} $direction
+///     Shadow's direction (angle or keyword)
+/// @param {Length} $length
+///     Shadow's length
+/// @param {Color} $color
+///     Shadow's color
+/// @param {Bool | Color} $fade [false]
+///     Whether or not shadow should fade:
+///     - `false` means no fading, shadow is `$color`
+///     - `true`  means fading from `$color` to transparent
+///     - a color means fading from `$color` to `$fade`
+/// @param {Number} $shadow-count [100]
+///     Number of computed shadows
+///
+/// @return {List} - List of shadows
+///
+/// @require {function} Compass/helpers/math/cos
+///     http://compass-style.org/reference/compass/helpers/math/#cos
+/// @require {function} Compass/helpers/math/sin
+///     http://compass-style.org/reference/compass/helpers/math/#sin
+///
+/// @example scss - Usage
+/// .foo {
+///   text-shadow: long-shadow(42deg, 1em, #16a085);
+/// }
+/// .bar {
+///   box-shadow: long-shadow(to top left, 150px, hotpink, tomato);
+/// }
+@function ultimate-long-shadow($direction, $length, $color, $fade: false, $shadow-count: 100) {
+	$shadows: ();
+	$conversion-map: (
+		to top: 180deg,
+		to top right: 135deg,
+		to right top: 135deg,
+		to right: 90deg,
+		to bottom right: 45deg,
+		to right bottom: 45deg,
+		to bottom: 0deg,
+		to bottom left: 315deg,
+		to left bottom: 315deg,
+		to left: 270deg,
+		to left top: 225deg,
+		to top left: 225deg
+	);
+
+	@if map-has-key($conversion-map, $direction) {
+		$direction: map-get($conversion-map, $direction);
+	}
+
+	@for $i from 1 through $shadow-count {
+		$current-step: ($i * $length / $shadow-count);
+		$current-color: if(not $fade, $color, if(type-of($fade) == 'color',  mix($fade, $color, ($i / $shadow-count * 100)), rgba($color, 1 - $i / $shadow-count)));
+
+		$shadows: append($shadows, (sin(0deg + $direction) * $current-step) (cos(0deg + $direction) * $current-step) 0 $current-color, 'comma');
+	}
+
+	@return $shadows;
+}
+
+
+
+// Examples
+
+//.foo {
+//	text-shadow: long-shadow(
+//		// Shadow should have an angle of 42 degrees
+//		$direction: 42deg,
+//			// Shadow should be contain within a 100x100 box
+//		$length: 100px,
+//			// Shadow should start this color
+//		$color: #16a085,
+//			// To finish this color
+//		$fade: #1abc9c
+//	);
+//}
+//
+//.bar {
+//	box-shadow: long-shadow(
+//		// Shadow should go to bottom right (45deg)
+//		$direction: to left,
+//			// With a length of 15em
+//		$length: 15em,
+//			// From this color
+//		$color: #2980b9,
+//			// To this color
+//		$fade: #e67e22
+//	);
+//}
+//
+//.baz {
+//	box-shadow: long-shadow(
+//		// Shadow should have an angle of 25deg
+//		$direction: -125deg,
+//			// Spread on 120px
+//		$length: 120px,
+//			// From this color
+//		$color: #8e44ad,
+//			// To transparent
+//		$fade: true,
+//			// With only 10 shadows
+//		$shadow-count: 10
+//	)
+//}
+//
+
+
+
+
+// ------------------------------------------------------------------------------
+// !-- LONG SHADOW
+// ------------------------------------------------------------------------------
+
+@mixin longShadow(
+    $color, //background color
+    $angle:45, //angle
+    $steps:70, //how many steps (the fewer the better)
+    $darken:10, //how dark the shadow is relative to the background
+    $darken-decay:0.17, //how much the shadow fades (darken level per step)
+    $darken-blur:0, //how much the shadow blurs (px per step)
+    $occlusion-darken:13, //how dark is the ambient occlusion
+    // the darkening in the areas where ambient light can't reach, usually corners.
+    $occlusion-radius:4px, //
+    $bounce-color:white, //color of the light that gets reflected from the text into the background (preferably the text color)
+    $bounce-strength:0.4, //how strong is the light reflected
+    $bounce-radius:6px //
+  ){
+
+  $occlusion-darken:$occlusion-darken+$darken;
+  $angle:($angle*3.14)/180;
+  $x:cos($angle);
+  $y:sin($angle);
+
+  $shadow:null;
+  $shadow:append($shadow,$x*2px $y*2px $occlusion-radius darken($color,$occlusion-darken),comma);
+  $shadow:append($shadow,($x* -3)+px ($y* -3)+px $bounce-radius transparentize($bounce-color,1-$bounce-strength),comma);
+
+  @for $i from 1 through $steps{
+    $cur-darken:max(0,$darken - ($i* $darken-decay));
+    $cur-blur:($i*$darken-blur)+px;
+    $shadow:append($shadow,($i*$x)+px ($i*$y)+px $cur-blur darken($color,$cur-darken), comma);
+  }
+  box-shadow: $shadow;
+}
+
+
+// ------------------------------------------------------------------------------
+// !-- LONG TEXT SHADOW
+// ------------------------------------------------------------------------------
+
+@mixin longTextShadow (
+    $color, //background color
+    $angle:45, //angle
+    $steps:70, //how many steps (the fewer the better)
+    $darken:10, //how dark the shadow is relative to the background
+    $darken-decay:0.17, //how much the shadow fades (darken level per step)
+    $darken-blur:0, //how much the shadow blurs (px per step)
+    $occlusion-darken:13, //how dark is the ambient occlusion
+    // for people with no 3D background, ambient occlusion is the darkening in the areas where the ambient light can't reach, usually corners.
+    $occlusion-radius:4px, //
+    $bounce-color:white, //color of the light that gets reflected from the text into the background (preferably the text color)
+    $bounce-strength:0.4, //how strong is the light reflected
+    $bounce-radius:6px //
+  ){
+
+  $occlusion-darken:$occlusion-darken+$darken;
+  $angle:($angle*3.14)/180;
+  $x:cos($angle);
+  $y:sin($angle);
+
+  $shadow:null;
+  $shadow:append($shadow,$x*2px $y*2px $occlusion-radius darken($color,$occlusion-darken),comma);
+  $shadow:append($shadow,($x* -3)+px ($y* -3)+px $bounce-radius transparentize($bounce-color,1-$bounce-strength),comma);
+
+  @for $i from 1 through $steps{
+    $cur-darken:max(0,$darken - ($i* $darken-decay));
+    $cur-blur:($i*$darken-blur)+px;
+    $shadow:append($shadow,($i*$x)+px ($i*$y)+px $cur-blur darken($color,$cur-darken), comma);
+  }
+  text-shadow: $shadow;
+}
+
+
+@function basiclongshadow($color) {
+	$val: 0px 0px $color;
+	@for $i from 1 through 200 {
+		$val: #{$val}, #{$i}px #{$i}px #{$color};
+	}
+	@return $val;
+}
+
+
+

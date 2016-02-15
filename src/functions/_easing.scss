@@ -1,0 +1,198 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+//                    _            
+//   ___  ____ ______(_)___  ____ _
+//  / _ \/ __ `/ ___/ / __ \/ __ `/
+// /  __/ /_/ (__  ) / / / / /_/ / 
+// \___/\__,_/____/_/_/ /_/\__, /  
+//                        /____/   
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Easing curve functions
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Functions
+/// @author David Victor
+////
+/// Returns values based on an easing curve and # of iterations
+/// adapted from http://www.kirupa.com/forum/showthread.php?378287-Robert-Penner-s-Easing-Equations-in-Pure-JS-%28no-jQuery%29
+//// @param {Number} $iteration -> $iteration
+//// @param {Number} $start-value -> $start-value
+//// @param {Number} $change -> $change,
+//// @param {Number} $total-iterations -> $total-iterations
+
+@function ease($iteration, $start-value, $change, $total-iterations, $ease) {
+	$progress: $iteration / $total-iterations;
+
+	// value increases evenly
+	@if $ease == linear {
+		@return $change * $progress + $start-value;
+	}
+
+	// value increases on a curve, accelerating
+	@if $ease == in-quad {
+		@return $change * $progress * $progress + $start-value;
+	}
+
+	// value increases on a curve, decelerating
+	@if $ease == out-quad {
+		@return -$change * $progress * ($progress - 2) + $start-value;
+	}
+
+	@if $ease == in-out-quad {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * $iteration * $iteration + $start-value;
+		}
+		@return -$change / 2 * (($iteration - 1) * ($iteration - 2) - 1) + $start-value;
+	}
+
+	// value accelerates sharply
+	@if $ease == in-cubic {
+		@return $change * pow($progress, 3) + $start-value;
+	}
+
+	// value decelerates sharply
+	@if $ease == out-cubic {
+		@return $change * (pow($progress - 1, 3) + 1) + $start-value;
+	}
+
+	@if $ease == in-out-cubic {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow($iteration, 3) + $start-value;
+		}
+		@return $change / 2 * (pow($iteration - 2, 3) + 2) + $start-value;
+	}
+
+	// value accelerates more sharply
+	@if $ease == in-quart {
+		@return $change * pow($progress, 4) + $start-value;
+	}
+
+	// value decelerates more sharply
+	@if $ease == out-quart {
+		@return -$change * (pow($progress - 1, 4) - 1) + $start-value;
+	}
+
+	@if $ease == in-out-quart {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow($iteration, 4) + $start-value;
+		}
+		@return -$change / 2 * (pow($iteration - 2, 4) - 2) + $start-value;
+	}
+
+	// value accelerates very sharply
+	@if $ease == in-quint {
+		@return $change * pow($progress, 5) + $start-value;
+	}
+
+	// value decelerates very sharply
+	@if $ease == out-quint {
+		@return $change * (pow($progress - 1, 5) + 1) + $start-value;
+	}
+
+	@if $ease == in-out-quint {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow($iteration, 5) + $start-value;
+		}
+		@return $change / 2 * (pow($iteration - 2, 5) + 2) + $start-value;
+	}
+
+	@if $ease == in-sine {
+		@return $change * (1 - cos($iteration / $total-iterations * (pi() / 2))) + $start-value;
+	}
+
+	@if $ease == out-sine {
+		@return $change * sin($iteration / $total-iterations *(pi() / 2)) + $start-value;
+	}
+
+	@if $ease == in-out-sine {
+		@return $change / 2 * (1 - cos(pi() * $iteration / $total-iterations)) + $start-value;
+	}
+
+	@if $ease == in-expo {
+		@return $change * pow(2, 10 * ($iteration / $total-iterations - 1)) + $start-value;
+	}
+
+	@if $ease == out-expo {
+		@return $change * (- pow(2, -10 * $iteration / $total-iterations) + 1) + $start-value;
+	}
+
+	@if $ease == in-out-expo {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * pow(2, 10 * ($iteration - 1)) + $start-value;
+		}
+		@return $change / 2 * (- pow(2, -10 * ($iteration - 1)) + 2) + $start-value;
+	}
+
+	@if $ease == in-circ {
+		@return $change * (1 - sqrt(1 - ($change) * $iteration)) + $start-value;
+	}
+
+	@if $ease == out-circ {
+		@return $change * sqrt(1 - ($iteration = $iteration / $total-iterations - 1) * $iteration) + $start-value;
+	}
+
+	@if $ease ==in-out-circ {
+		@if (($change / 2) < 1) {
+			@return $change / 2 * (1 - sqrt(1 - $iteration * $iteration)) + $start-value;
+		}
+		@return $change / 2 * (sqrt(1 - ($iteration - 2) * $iteration) + 1) + $start-value;
+	}
+
+}
+
+// +==============================================================================
+// | EASING MAP
+// +==============================================================================
+$ease: (
+	in-quad: cubic-bezier(0.550, 0.085, 0.680, 0.530),
+	in-cubic: cubic-bezier(0.550, 0.055, 0.675, 0.190),
+	in-quart: cubic-bezier(0.895, 0.030, 0.685, 0.220),
+	in-quint: cubic-bezier(0.755, 0.050, 0.855, 0.060),
+	in-sine: cubic-bezier(0.470, 0.000, 0.745, 0.715),
+	in-expo: cubic-bezier(0.950, 0.050, 0.795, 0.035),
+	in-circ: cubic-bezier(0.600, 0.040, 0.980, 0.335),
+	in-back: cubic-bezier(0.600, -0.280, 0.735, 0.045),
+	out-quad: cubic-bezier(0.250, 0.460, 0.450, 0.940),
+	out-cubic: cubic-bezier(0.215, 0.610, 0.355, 1.000),
+	out-quart: cubic-bezier(0.165, 0.840, 0.440, 1.000),
+	out-quint: cubic-bezier(0.230, 1.000, 0.320, 1.000),
+	out-sine: cubic-bezier(0.390, 0.575, 0.565, 1.000),
+	out-expo: cubic-bezier(0.190, 1.000, 0.220, 1.000),
+	out-circ: cubic-bezier(0.075, 0.820, 0.165, 1.000),
+	out-back: cubic-bezier(0.175, 0.885, 0.320, 1.275),
+	in-out-quad: cubic-bezier(0.455, 0.030, 0.515, 0.955),
+	in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1.000),
+	in-out-quart: cubic-bezier(0.770, 0.000, 0.175, 1.000),
+	in-out-quint: cubic-bezier(0.860, 0.000, 0.070, 1.000),
+	in-out-sine: cubic-bezier(0.445, 0.050, 0.550, 0.950),
+	in-out-expo: cubic-bezier(1.000, 0.000, 0.000, 1.000),
+	in-out-circ: cubic-bezier(0.785, 0.135, 0.150, 0.860),
+	in-out-back: cubic-bezier(0.680, -0.550, 0.265, 1.550)
+);
+
+@function e($key) {
+	@if map-has-key($ease, $key) {
+		@return map-get($ease, $key);
+	}
+	@warn "smh, '#{$key}' definitely not in $ease ~ via e (easing shortcut function)";
+	@return null;
+}
+
+
+@function _easeing($time, $g) {
+	@if $time < 50 {
+		@return 0.5 * pow(2 * $time/100, $g);
+	} @else {
+		@return 1 - (0.5 * pow(2 * (1 - $time/100), $g));
+	}
+}
+
+@mixin easingGenerator($g) {
+	@for $i from 0 through 100 {
+		// calculate
+		$percent: 0% + $i;
+		$left: 0% + 100 * ease($i, $g);
+		// set position
+		#{$percent} { left: $left; }
+	}
+}

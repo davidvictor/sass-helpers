@@ -1,0 +1,127 @@
+//     _________  ____ _____________________
+//    / ___/ __ \/ __ `/ ___/ ___/ ___/ ___/
+//   / /  / /_/ / /_/ / /  / /__(__  |__  )
+//  /_/   \____/\__,_/_(_) \___/____/____/
+//
+// +==============================================================================
+// | POSITION
+// +==============================================================================
+
+@mixin pos($position, $args: (), $i: false) {
+  $offsets: top right bottom left;
+  position: $position;
+  @each $offset in $offsets {
+    $index: index($args, $offset);
+    @if $index {
+      @if $index == length($args) {
+        @if $i {
+          #{$offset}: 0 !important;
+        }
+        @else {
+          #{$offset}: 0;
+        }
+      }
+      @else {
+        $next: nth($args, $index + 1);
+        @if is-length($next) {
+          @if $i {
+            #{$offset}: $next !important;
+          }
+          @else {
+            #{$offset}: $next;
+          }
+        }
+        @else if index($offsets, $next) {
+          @if $i {
+            #{$offset}: 0 !important;
+          }
+          @else {
+            #{$offset}: 0;
+          }
+        }
+        @else {
+          @warn "Invalid value `#{$next}` for offset `#{$offset}`.";
+        }
+      }
+    }
+  }
+}
+
+@mixin absolute($args: (), $i: false) {
+  @include pos(absolute, $args);
+}
+
+@mixin fixed($args: (), $i: false) {
+  @include pos(fixed, $args);
+}
+
+@mixin relative($args: (), $i: false) {
+  @include pos(relative, $args);
+}
+
+@mixin absolute-center($width, $height) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: $width;
+  height: $height;
+  margin: -$height / 2 0 0 -$width / 2;
+}
+
+@mixin coverer() {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+@mixin centerer() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin vert($pos:relative) {
+	@if $pos == relative {
+		position: relative;
+	} @elseif $pos == absolute {
+		position: absolute;
+	} @else {
+		@warn "smh, '$pos' is not a valid position ~ via vert";
+	}
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+}
+
+@mixin vert-ghost() {
+  &:before {
+    content: '';
+    display: inline-block;
+		height: 100%;
+    vertical-align: middle;
+    width: .1px;
+  }
+}
+
+@mixin translate($horizontal: 0, $vertical: 0) {
+  transform: translate($horizontal, $vertical);
+}
+
+
+@mixin cover-div() {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+}
+
+@mixin overlay-params($opacity-strength, $background-color) {
+	@include cover-div();
+	content: '';
+	opacity: $opacity-strength;
+	z-index: 2;
+	background-color: $background-color;
+}

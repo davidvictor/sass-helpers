@@ -1,0 +1,168 @@
+// ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
+
+
+// +==============================================================================
+// | UNIVERSAL BOX MODEL PRIVATE
+// +==============================================================================
+
+/// Universal Box Model
+/// @group Properties
+/// @author David Victor
+/// @access private
+/// @since 0.9.0
+/// @requires _is-px
+/// @requires _is-rem
+/// @param {list} $v - values
+/// @param {list} $l - locations
+/// @param {*} $i - important flag
+/// @param {unit} $u - output unit
+/// @param {*} $p - output property
+
+@mixin _ubm($v, $l, $i, $u, $p) {
+	@if $l == null {
+		@if $u == px {
+			@include _is-px($p, $v, $i);
+		} @else if $u == rem {
+			@include _is-rem($p, $v, $i);
+		} @else {
+			@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+		}
+	} @else {
+		@if sl-contain($l, horizontal) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -right);
+				@include _is-px($p, $v, $i, -left);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -right);
+				@include _is-rem($p, $v, $i, -left);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, vertical) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -top);
+				@include _is-px($p, $v, $i, -bottom);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -top);
+				@include _is-rem($p, $v, $i, -bottom);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, top) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -top);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -top);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, left) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -left);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -left);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, bottom) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -bottom);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -bottom);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+		@if sl-contain($l, right) {
+			@if $u == px {
+				@include _is-px($p, $v, $i, -right);
+			} @else if $u == rem {
+				@include _is-rem($p, $v, $i, -right);
+			} @else {
+				@warn "smh, 'unit($rpx-v)' is neither a pixel nor a rem ~ rpx";
+			}
+		}
+	}
+}
+
+
+
+
+
+//               ___
+//    ____ ___  ( _ )   ____
+//   / __ `__ \/ __ \/|/ __ \
+//  / / / / / / /_/  </ /_/ /
+// /_/ /_/ /_/\____/\/ .___/
+//                  /_/
+//
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+// | Margin & Padding
+// +≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡⊳
+////
+/// @group Box Model
+/// @author David Victor
+////
+
+/// Cross Browser Margin & Padding
+/// @since 0.9.0
+/// @requires _is-px
+/// @requires _is-rem
+/// @require __umb
+/// @param {list} $v - values
+/// @param {list} $l - locations
+/// @param {*} $i - important flag
+/// @param {unit} $u - output unit
+/// @param {*} $p - output property
+///
+@mixin p($v, $l: null, $i: null, $u: rem) {
+	@include _ubm($v, $l, $i, $u, $p: padding);
+}
+
+@mixin m($v, $l: null, $i: null, $u: rem) {
+	@include _ubm($v, $l, $i, $u, $p: margin);
+}
+
+// -------------------------------------------------------------------------------
+//  Box Sizing
+// -------------------------------------------------------------------------------
+
+@mixin box-sizing($box) {
+	box-sizing: $box;
+}
+
+// -------------------------------------------------------------------------------
+//  Align Center
+// -------------------------------------------------------------------------------
+
+@mixin align-center() {
+	margin: 0 auto;
+}
+
+// ------------------------------------------------------------------------------
+// !-- Abs
+// ------------------------------------------------------------------------------
+
+@mixin abs() {
+	position: absolute;
+}
+
+// ------------------------------------------------------------------------------
+// !-- Rel
+// ------------------------------------------------------------------------------
+
+@mixin rel() {
+	position: relative;
+}
+
+// ------------------------------------------------------------------------------
+// !-- Fixed
+// ------------------------------------------------------------------------------
+
+@mixin fixed() {
+	position: fixed;
+}
