@@ -19,6 +19,7 @@ var config = {
 			"src/functions/_easing.scss",
 			"src/functions/_zindex.scss",
 			"src/functions/_matches.scss",
+			"src/_settings.scss",
 			"src/misc/_approx.scss",
 			"src/misc/_assert.scss",
 			"src/misc/_events.scss",
@@ -42,7 +43,6 @@ var config = {
 			"src/properties/_shadow-material.scss",
 			"src/properties/_size.scss",
 			"src/properties/_stagger.scss",
-			"src/utilities/_settings.scss",
 			"src/utilities/_generate.scss"
 		]
 	},

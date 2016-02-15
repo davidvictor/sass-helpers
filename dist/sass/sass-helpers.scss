@@ -1252,6 +1252,148 @@ $z: (
 }
 
 
+// +==============================================================================
+// | SPACING
+// +==============================================================================
+
+$rem-base: 16px !default;
+
+$spacing-default: 2rem !default;
+
+$spacing-small: $spacing-default/2 !default;
+$spacing-tiny: $spacing-small/2 !default;
+$spacing-micro: $spacing-tiny/2 !default;
+
+$spacing-large: $spacing-default*1.5 !default;
+$spacing-huge: $spacing-default*2 !default;
+$spacing-giant: $spacing-default*3 !default;
+$spacing-divine: $spacing-default*4 !default;
+
+// ------------------------------------------------------------------------------
+// !-- SPACING
+// ------------------------------------------------------------------------------
+
+// Here we create a map to call throughout the framework
+
+$spacing-keys: (
+								 auto: (
+									 id: auto,
+									 value: auto,
+								 ),
+								 zero: (
+									 id: 0,
+									 value: 0,
+								 ),
+								 micro: (
+									 id: i,
+									 value: $spacing-micro,
+								 ),
+								 tiny: (
+									 id: t,
+									 value: $spacing-tiny,
+								 ),
+								 small: (
+									 id: s,
+									 value: $spacing-small,
+								 ),
+								 default: (
+									 id: m,
+									 value: $spacing-default,
+								 ),
+								 large: (
+									 id: l,
+									 value: $spacing-large,
+								 ),
+								 huge: (
+									 id: h,
+									 value: $spacing-huge,
+								 ),
+								 giant: (
+									 id: g,
+									 value: $spacing-giant,
+								 ),
+								 divine: (
+									 id: d,
+									 value: $spacing-divine,
+								 )
+							 ) !default;
+
+$rect-keys: (
+							all: (
+								id: a,
+								value: null
+							),
+							vertical: (
+								id: v,
+								value: vertical
+							),
+							horizontal: (
+								id: h,
+								value: horizontal
+							),
+							top: (
+								id: t,
+								value: top
+							),
+							bottom: (
+								id: b,
+								value: bottom
+							),
+							left: (
+								id: l,
+								value: left
+							),
+							right: (
+								id: r,
+								value: right
+							)
+						) !default;
+
+$direction-keys: (
+									 top: (
+										 id: t,
+										 value: top
+									 ),
+									 bottom: (
+										 id: b,
+										 value: bottom
+									 ),
+									 left: (
+										 id: l,
+										 value: left
+									 ),
+									 right: (
+										 id: r,
+										 value: right
+									 )
+								 ) !default;
+
+$position-keys: (
+									absolute: (
+										id: a,
+										value: absolute
+									),
+									relative: (
+										id: r,
+										value: relative
+									)
+								) !default;
+
+
+
+
+$colors-text: (
+								white: white,
+								gray: gray,
+								black: black
+							) !default;
+
+$colors-bg: (
+							white: white,
+							gray: gray,
+							black: black
+						) !default;
+
 // ⧂⧟⧟❛Ʀoɑr⧟Ƒrɑmeworĸ⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⧟⦒≻
 //
 //   ____ _____  ____  _________  _  __
